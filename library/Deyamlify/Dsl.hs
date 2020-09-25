@@ -233,13 +233,13 @@ instance Applicative Fields where
   (<*>) (Fields le lp) (Fields re rp) =
     Fields
       (Ex.BothFields le re)
-      (\ a b -> ($) <$> lp a b <*> rp a b)
+      (\ a b -> lp a b <*> rp a b)
 
 instance Selective Fields where
   select (Fields le lp) (Fields re rp) =
     Fields
       (Ex.BothFields le re)
-      (\ a b -> lp a b >>= either (\ c -> fmap ($ c) (rp a b)) return)
+      (\ a b -> select (lp a b) (rp a b))
 
 instance Alternative Fields where
   empty =
