@@ -34,6 +34,7 @@ library
     Deyamlify.Util.Word8
     Deyamlify.Util.Text
     Deyamlify.Util.TextAttoparsec
+    Deyamlify.Util.Vector
     Deyamlify.YamlValueParser
   build-depends:
     aeson >=1 && <2,

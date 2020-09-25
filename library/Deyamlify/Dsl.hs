@@ -12,6 +12,8 @@ import qualified Data.HashMap.Strict as HashMap
 import qualified Deyamlify.Util.HashMap as HashMap
 import qualified Data.Text as Text
 import qualified Data.Attoparsec.Text as TextAtto
+import qualified Data.Vector as Vector
+import qualified Deyamlify.Util.Vector as Vector
 
 
 -- * Execution
@@ -188,6 +190,22 @@ byOrderSequence byOrder =
   Sequence
     (Ex.ByOrderSequence (byOrderExpectation byOrder))
     (evalStateT (byOrderParser byOrder) . (0,))
+
+byKeySequence :: ByKey Int a -> Sequence a
+byKeySequence byKey =
+  Sequence expectation parse
+  where
+    expectation =
+      Ex.ByKeySequence (byKeyExpectation byKey)
+    parse input =
+      let
+        vector =
+          Vector.fromList input
+        lookup k =
+          vector Vector.!? k
+        lookupFirst kl =
+          Vector.lookupFirst kl vector
+        in byKeyParser byKey lookup lookupFirst
 
 
 -- *
