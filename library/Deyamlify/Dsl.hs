@@ -147,7 +147,7 @@ assocVectorMapping key val zip =
     parse k v =
       zip <$> stringParser key k <*> valueParser val v
 
-byKeyMapping :: Bool -> ByKey a -> Mapping a
+byKeyMapping :: Bool -> ByKey Text a -> Mapping a
 byKeyMapping caseSensitive byKey =
   Mapping expectation parse
   where
@@ -226,14 +226,14 @@ attoparsedString format parser =
 -- *
 -------------------------
 
-data ByKey a =
+data ByKey key a =
   ByKey {
-    byKeyExpectation :: Ex.ByKey,
-    byKeyParser :: (Text -> Maybe Yaml.YamlValue) -> ([Text] -> Maybe (Text, Yaml.YamlValue)) -> Parser.Eff a
+    byKeyExpectation :: Ex.ByKey key,
+    byKeyParser :: (key -> Maybe Yaml.YamlValue) -> ([key] -> Maybe (key, Yaml.YamlValue)) -> Parser.Eff a
   }
   deriving (Functor)
 
-instance Applicative ByKey where
+instance Applicative (ByKey key) where
   pure =
     ByKey Ex.AnyByKey . const . const . pure
   (<*>) (ByKey le lp) (ByKey re rp) =
@@ -241,13 +241,13 @@ instance Applicative ByKey where
       (Ex.BothByKey le re)
       (\ a b -> lp a b <*> rp a b)
 
-instance Selective ByKey where
+instance Selective (ByKey key) where
   select (ByKey le lp) (ByKey re rp) =
     ByKey
       (Ex.BothByKey le re)
       (\ a b -> select (lp a b) (rp a b))
 
-instance Alternative ByKey where
+instance Alternative (ByKey key) where
   empty =
     ByKey
       Ex.NoByKey
@@ -257,7 +257,7 @@ instance Alternative ByKey where
       (Ex.EitherByKey le re)
       (\ a b -> lp a b <|> rp a b)
 
-atByKey :: Text -> Value a -> ByKey a
+atByKey :: Show key => key -> Value a -> ByKey key a
 atByKey key valueSpec =
   ByKey
     (Ex.LookupByKey [key] (valueExpectation valueSpec))
@@ -266,12 +266,12 @@ atByKey key valueSpec =
     parser lookup _ =
       case lookup key of
         Just val ->
-          Parser.atKey key $
+          Parser.atShowableKey key $
           valueParser valueSpec val
         Nothing ->
-          Parser.fail ("Key not found: " <> key)
+          Parser.fail ("Key not found: " <> showAsText key)
 
-atOneOfByKey :: [Text] -> Value a -> ByKey a
+atOneOfByKey :: Show key => [key] -> Value a -> ByKey key a
 atOneOfByKey keys valueSpec =
   ByKey
     (Ex.LookupByKey keys (valueExpectation valueSpec))
@@ -280,7 +280,7 @@ atOneOfByKey keys valueSpec =
     parser _ lookup =
       case lookup keys of
         Just (key, val) ->
-          Parser.atKey key $
+          Parser.atShowableKey key $
           valueParser valueSpec val
         Nothing ->
           Parser.fail ("None of the keys found: " <> showAsText keys)

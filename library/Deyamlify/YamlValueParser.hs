@@ -17,6 +17,7 @@ import qualified Data.ByteString.Base64 as Base64
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 import qualified Deyamlify.Util.HashMap as HashMap
+import qualified Deyamlify.Util.Text as Text
 
 
 -- *
@@ -231,6 +232,10 @@ Execute an effect adding a segment to its context path.
 atKey :: Text -> Eff a -> Eff a
 atKey segment =
   local (\ (Env map path) -> Env map (segment : path))
+
+atShowableKey :: Show key => key -> Eff a -> Eff a
+atShowableKey key =
+  atKey (Text.deshowIfPossible (showAsText key))
 
 {-|
 Raise an error message with current context path.
