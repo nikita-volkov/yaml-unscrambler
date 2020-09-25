@@ -117,15 +117,15 @@ foldSequence parseElement (Fold foldStep foldInit foldExtract) input =
     step (!index, !state) element =
       (succ index,) . foldStep state <$> atIndex index (parseElement element)
 
-parseScalarAsNull :: ByteString -> Libyaml.Tag -> Eff ()
-parseScalarAsNull bytes tag =
+parseScalarAsNull :: a -> ByteString -> Libyaml.Tag -> Eff a
+parseScalarAsNull a bytes tag =
   if
     tag == Libyaml.NullTag ||
     ByteString.null bytes ||
     bytes == "~" ||
     ByteString.saysNullInCiAscii bytes
     then
-      return ()
+      return a
     else
       fail "Not null"
 

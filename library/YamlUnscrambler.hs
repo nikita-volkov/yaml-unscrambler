@@ -127,7 +127,7 @@ value scalars mappings sequences =
 nullableValue :: [Scalar a] -> Maybe (Mapping a) -> Maybe (Sequence a) -> Value (Maybe a)
 nullableValue scalars mappings sequences =
   value
-    ((Nothing <$ nullScalar) : fmap (fmap Just) scalars)
+    ((nullScalar Nothing) : fmap (fmap Just) scalars)
     (fmap (fmap Just) mappings)
     (fmap (fmap Just) sequences)
 
@@ -151,9 +151,9 @@ stringScalar (String exp parse) =
     (Ex.StringScalar exp)
     (\ bytes _ _ -> Parser.decodeUtf8 bytes >>= parse)
 
-nullScalar :: Scalar ()
-nullScalar =
-  Scalar Ex.NullScalar (\ bytes tag _ -> Parser.parseScalarAsNull bytes tag)
+nullScalar :: a -> Scalar a
+nullScalar a =
+  Scalar Ex.NullScalar (\ bytes tag _ -> Parser.parseScalarAsNull a bytes tag)
 
 boolScalar :: Scalar Bool
 boolScalar =
