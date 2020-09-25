@@ -183,6 +183,12 @@ data Sequence a =
   }
   deriving (Functor)
 
+byPositionSequence :: ByPosition a -> Sequence a
+byPositionSequence byPosition =
+  Sequence
+    (Ex.ByPositionSequence (byPositionExpectation byPosition))
+    (evalStateT (byPositionParser byPosition) . (0,))
+
 
 -- *
 -------------------------
@@ -278,3 +284,58 @@ byOneOfKeysFields keys valueSpec =
           valueParser valueSpec val
         Nothing ->
           Parser.fail ("None of the keys found: " <> showAsText keys)
+
+
+-- *
+-------------------------
+
+data ByPosition a =
+  ByPosition {
+    byPositionExpectation :: Ex.ByPosition,
+    byPositionParser :: StateT (Int, [Yaml.YamlValue]) Parser.Eff a
+  }
+  deriving (Functor)
+
+instance Applicative ByPosition where
+  pure =
+    ByPosition Ex.AnyByPosition . pure
+  (<*>) (ByPosition le lp) (ByPosition re rp) =
+    ByPosition
+      (Ex.BothByPosition le re)
+      (lp <*> rp)
+
+instance Selective ByPosition where
+  select (ByPosition le lp) (ByPosition re rp) =
+    ByPosition
+      (Ex.BothByPosition le re)
+      (select lp rp)
+
+instance Alternative ByPosition where
+  empty =
+    ByPosition
+      Ex.NoByPosition
+      empty
+  (<|>) (ByPosition le lp) (ByPosition re rp) =
+    ByPosition
+      (Ex.EitherByPosition le re)
+      (lp <|> rp)
+
+fetchByPosition :: Value a -> ByPosition a
+fetchByPosition value =
+  ByPosition
+    (Ex.FetchByPosition (valueExpectation value))
+    parser
+  where
+    parser =
+      do
+        (offset, list) <- get
+        case list of
+          h : t ->
+            let
+              !nextOffset =
+                succ offset
+              in do
+                put (nextOffset, t)
+                lift (Parser.atIndex offset (valueParser value h))
+          _ ->
+            lift (Parser.fail "No elements left")

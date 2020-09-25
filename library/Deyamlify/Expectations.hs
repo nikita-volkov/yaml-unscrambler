@@ -50,7 +50,9 @@ data Mapping =
 data Sequence =
   MonomorphicSequence Value
     |
-  PolymorphicSequence Elements
+  ByPositionSequence ByPosition
+    |
+  ByIndexSequence ByIndex
 
 -- *
 -------------------------
@@ -76,16 +78,27 @@ data Fields =
     |
   QueryFields [Text] {-^ Keys to lookup. -} Value
 
-data Elements =
-  AnyElements
+data ByPosition =
+  AnyByPosition
     |
-  NoElements
+  NoByPosition
     |
-  EitherElements Elements Elements
+  EitherByPosition ByPosition ByPosition
     |
-  BothElements Elements Elements
+  BothByPosition ByPosition ByPosition
     |
-  QueryElements Value
+  FetchByPosition Value
+
+data ByIndex =
+  AnyByIndex
+    |
+  NoByIndex
+    |
+  EitherByIndex ByIndex ByIndex
+    |
+  BothByIndex ByIndex ByIndex
+    |
+  IndexByIndex Int Value
 
 
 -- *
