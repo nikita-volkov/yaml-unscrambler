@@ -18,6 +18,7 @@ import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 import qualified Deyamlify.Util.HashMap as HashMap
 import qualified Deyamlify.Util.Text as Text
+import qualified Deyamlify.Util.Yaml as Yaml
 
 
 -- *
@@ -39,6 +40,19 @@ data Env =
     {-^ Anchor map from the RawDoc. -}
     [Text]
     {-^ Path. -}
+
+
+runValueParser :: (Yaml.YamlValue -> Eff a) -> ByteString -> Either Text a
+runValueParser eff input =
+  do
+    Yaml.RawDoc value map <- Yaml.parseByteStringToRawDoc input
+    first errMapping (runExceptT (eff value) (Env map []))
+  where
+    errMapping =
+      Text.intercalate "\n" . fmap renderErr
+    renderErr (Err path message) =
+      foldMap (\ x -> "/" <> x) (reverse path) <> ": " <>
+      message
 
 
 -- *

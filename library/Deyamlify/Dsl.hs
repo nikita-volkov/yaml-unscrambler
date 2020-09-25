@@ -21,8 +21,8 @@ import qualified Data.Vector.Generic as GenericVector
 -------------------------
 
 parseByteString :: Value a -> ByteString -> Either Text a
-parseByteString =
-  error "TODO"
+parseByteString value input =
+  Parser.runValueParser (valueParser value) input
 
 {-|
 Get a tree of expectations, which can then be converted into
