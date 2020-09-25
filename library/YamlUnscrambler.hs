@@ -210,23 +210,18 @@ data Mapping a =
   }
   deriving (Functor)
 
-foldMapping :: Fold (key, val) a -> String key -> Value val -> Mapping a
-foldMapping fold key val =
+foldMapping :: (key -> val -> assoc) -> Fold assoc a -> String key -> Value val -> Mapping a
+foldMapping zip fold key val =
   Mapping
     (Ex.MonomorphicMapping (stringExpectation key) (valueExpectation val))
     (Parser.foldMapping parse fold)
   where
     parse k v =
-      (,) <$> stringParser key k <*> valueParser val v
+      zip <$> stringParser key k <*> valueParser val v
 
 vectorMapping :: (key -> val -> assoc) -> String key -> Value val -> Mapping (Vector assoc)
-vectorMapping zip key val =
-  Mapping
-    (Ex.MonomorphicMapping (stringExpectation key) (valueExpectation val))
-    (Parser.foldMapping parse Fold.vector)
-  where
-    parse k v =
-      zip <$> stringParser key k <*> valueParser val v
+vectorMapping zip =
+  foldMapping zip Fold.vector
 
 byKeyMapping :: Bool -> ByKey Text a -> Mapping a
 byKeyMapping caseSensitive byKey =
