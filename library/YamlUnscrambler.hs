@@ -219,7 +219,7 @@ foldMapping zip fold key val =
     parse k v =
       zip <$> stringParser key k <*> valueParser val v
 
-vectorMapping :: (key -> val -> assoc) -> String key -> Value val -> Mapping (Vector assoc)
+vectorMapping :: (GenericVector.Vector v assoc) => (key -> val -> assoc) -> String key -> Value val -> Mapping (v assoc)
 vectorMapping zip =
   foldMapping zip Fold.vector
 
