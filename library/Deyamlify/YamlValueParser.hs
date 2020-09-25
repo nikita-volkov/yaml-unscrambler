@@ -117,12 +117,12 @@ parseScalarAsBool :: ByteString -> Eff Bool
 parseScalarAsBool bytes =
   if ByteString.length bytes <= 5
     then let
-      lowerCased =
+      lowercased =
         ByteString.lowercaseInAscii bytes
-      in if elem lowerCased ["y", "yes", "on", "true", "t", "1"]
+      in if elem lowercased ["y", "yes", "on", "true", "t", "1"]
         then
           return True
-        else if elem lowerCased ["n", "no", "off", "false", "f", "0"]
+        else if elem lowercased ["n", "no", "off", "false", "f", "0"]
           then
             return False
           else
