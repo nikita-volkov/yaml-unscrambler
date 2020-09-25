@@ -240,8 +240,8 @@ textString :: String Text
 textString =
   String Ex.AnyString return
 
-mapperString :: Bool -> [(Text, a)] -> String a
-mapperString caseSensitive assocList =
+enumString :: Bool -> [(Text, a)] -> String a
+enumString caseSensitive assocList =
   String
     (Ex.OneOfString (CaseSensitive caseSensitive) (fmap fst assocList))
     (Parser.mapString caseSensitive assocList)

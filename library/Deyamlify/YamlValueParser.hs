@@ -1,7 +1,7 @@
 module Deyamlify.YamlValueParser
 where
 
-import Deyamlify.Prelude hiding (fail)
+import Deyamlify.Prelude hiding (fail, liftEither)
 import Deyamlify.Model
 import qualified Data.Yaml.Parser as Yaml
 import qualified Text.Libyaml as Libyaml
@@ -16,9 +16,11 @@ import qualified Data.Map.Strict as Map
 import qualified Data.ByteString.Base64 as Base64
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
 import qualified Deyamlify.Util.HashMap as HashMap
 import qualified Deyamlify.Util.Text as Text
 import qualified Deyamlify.Util.Yaml as Yaml
+import qualified Data.List as List
 
 
 -- *
@@ -216,20 +218,45 @@ parseScalarAsBase64BinaryCheckingTag bytes tag =
       fail "Not tagged as binary"
 
 mapString :: Bool -> [(Text, a)] -> Text -> Eff a
-mapString =
-  error "TODO"
+mapString caseSensitive mappingList =
+  let
+    expectedValuesText =
+      fromString (show (fmap fst mappingList))
+    mappingListLength =
+      length mappingList
+    !lookup =
+      if mappingListLength > 512
+        then if caseSensitive
+          then let
+            hashMap =
+              HashMap.fromList mappingList
+            in flip HashMap.lookup hashMap
+          else let
+            hashMap =
+              HashMap.fromList (fmap (first Text.toLower) mappingList)
+            in flip HashMap.lookup hashMap . Text.toLower
+        else if caseSensitive
+          then
+            flip List.lookup mappingList
+          else
+            flip List.lookup (fmap (first Text.toLower) mappingList) . Text.toLower
+    parse text =
+      case lookup text of
+        Just a -> return a
+        _ -> fail ("Unexpected value: \"" <> text <> "\". Expecting one of: " <> expectedValuesText)
+    in parse
 
 decodeUtf8 :: ByteString -> Eff Text
 decodeUtf8 =
-  error "TODO"
+  liftStringEither . first show . Text.decodeUtf8'
 
 attoparseAscii :: AsciiAtto.Parser a -> ByteString -> Eff a
-attoparseAscii =
-  error "TODO"
+attoparseAscii parser =
+  liftStringEither . AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
 
 attoparseText :: TextAtto.Parser a -> Text -> Eff a
-attoparseText =
-  error "TODO"
+attoparseText parser =
+  liftStringEither . TextAtto.parseOnly (parser <* TextAtto.endOfInput)
 
 resolveAnchor :: Libyaml.AnchorName -> Eff Yaml.YamlValue
 resolveAnchor anchorName =
@@ -271,3 +298,7 @@ fail message =
 liftEither :: Either Text a -> Eff a
 liftEither =
   either fail return
+
+liftStringEither :: Either String a -> Eff a
+liftStringEither =
+  either (fail . fromString) return
