@@ -185,6 +185,12 @@ data Sequence a =
   }
   deriving (Functor)
 
+foldSequence :: Fold a b -> Value a -> Sequence b
+foldSequence fold value =
+  Sequence
+    (Ex.MonomorphicSequence (valueExpectation value))
+    (Parser.foldSequence (valueParser value) fold)
+
 byOrderSequence :: ByOrder a -> Sequence a
 byOrderSequence byOrder =
   Sequence

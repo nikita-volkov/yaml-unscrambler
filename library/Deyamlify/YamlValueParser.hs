@@ -93,6 +93,14 @@ foldMapping parse (Fold foldStep foldInit foldExtract) input =
     step !state (key, val) =
       foldStep state <$> atKey key (parse key val)
 
+foldSequence :: (Yaml.YamlValue -> Eff a) -> Fold a b -> [(Yaml.YamlValue)] -> Eff b
+foldSequence parseElement (Fold foldStep foldInit foldExtract) input =
+  foldM step (0, foldInit) input &
+  fmap (foldExtract . snd)
+  where
+    step (!index, !state) element =
+      (succ index,) . foldStep state <$> atIndex index (parseElement element)
+
 parseScalarAsNull :: ByteString -> Libyaml.Tag -> Eff ()
 parseScalarAsNull bytes tag =
   if
