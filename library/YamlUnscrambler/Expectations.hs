@@ -1,4 +1,18 @@
 module YamlUnscrambler.Expectations
+(
+  Value(..),
+  Scalar(..),
+  Mapping(..),
+  Sequence(..),
+  String(..),
+  ByKey(..),
+  ByOrder(..),
+  -- *
+  MaxInputSize(..),
+  Signed(..),
+  NumeralSystem(..),
+  CaseSensitive(..),
+)
 where
 
 import YamlUnscrambler.Prelude hiding (String)

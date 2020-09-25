@@ -1,4 +1,50 @@
 module YamlUnscrambler
+(
+  -- * Execution
+  parseByteString,
+  getExpectations,
+  -- * DSL
+  Value,
+  value,
+  nullableValue,
+  Scalar,
+  stringScalar,
+  nullScalar,
+  boolScalar,
+  scientificScalar,
+  doubleScalar,
+  rationalScalar,
+  boundedIntegerScalar,
+  unboundIntegerScalar,
+  timestampScalar,
+  dayScalar,
+  timeScalar,
+  uuidScalar,
+  binaryScalar,
+  Mapping,
+  vectorMapping,
+  byKeyMapping,
+  Sequence,
+  foldSequence,
+  vectorSequence,
+  byOrderSequence,
+  byKeySequence,
+  String,
+  textString,
+  enumString,
+  formattedString,
+  attoparsedString,
+  ByKey,
+  atByKey,
+  atOneOfByKey,
+  ByOrder,
+  fetchByOrder,
+  -- * Value types
+  MaxInputSize(..),
+  Signed(..),
+  NumeralSystem(..),
+  CaseSensitive(..),
+)
 where
 
 import YamlUnscrambler.Prelude hiding (String)
