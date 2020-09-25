@@ -23,6 +23,7 @@ library
     Deyamlify.ForParsing
   other-modules:
     Deyamlify.AsciiAtto
+    Deyamlify.Expectations
     Deyamlify.Model
     Deyamlify.Prelude
     Deyamlify.Util.ByteString
