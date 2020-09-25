@@ -1,9 +1,9 @@
-module Deyamlify.Util.ByteString
+module YamlUnscrambler.Util.ByteString
 where
 
-import Deyamlify.Prelude hiding (map, length)
+import YamlUnscrambler.Prelude hiding (map, length)
 import Data.ByteString
-import qualified Deyamlify.Util.Word8 as Word8
+import qualified YamlUnscrambler.Util.Word8 as Word8
 
 
 lowercaseInAscii =

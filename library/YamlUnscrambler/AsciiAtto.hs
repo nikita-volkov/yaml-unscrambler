@@ -1,8 +1,8 @@
-module Deyamlify.AsciiAtto
+module YamlUnscrambler.AsciiAtto
 where
 
-import Deyamlify.Prelude
-import Deyamlify.Model
+import YamlUnscrambler.Prelude
+import YamlUnscrambler.Model
 import Data.Attoparsec.ByteString.Char8
 import Attoparsec.Time.ByteString
 

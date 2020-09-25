@@ -1,9 +1,9 @@
-module Deyamlify.Expectations
+module YamlUnscrambler.Expectations
 where
 
-import Deyamlify.Prelude hiding (String)
-import Deyamlify.Model
-import qualified Deyamlify.Util.Maybe as Maybe
+import YamlUnscrambler.Prelude hiding (String)
+import YamlUnscrambler.Model
+import qualified YamlUnscrambler.Util.Maybe as Maybe
 
 
 -- *

@@ -1,19 +1,19 @@
-module Deyamlify
+module YamlUnscrambler
 where
 
-import Deyamlify.Prelude hiding (String)
-import Deyamlify.Model
-import qualified Deyamlify.YamlValueParser as Parser
+import YamlUnscrambler.Prelude hiding (String)
+import YamlUnscrambler.Model
+import qualified YamlUnscrambler.YamlValueParser as Parser
 import qualified Data.Yaml.Parser as Yaml
 import qualified Text.Libyaml as Libyaml
-import qualified Deyamlify.Expectations as Ex
+import qualified YamlUnscrambler.Expectations as Ex
 import qualified Control.Foldl as Fold
 import qualified Data.HashMap.Strict as HashMap
-import qualified Deyamlify.Util.HashMap as HashMap
+import qualified YamlUnscrambler.Util.HashMap as HashMap
 import qualified Data.Text as Text
 import qualified Data.Attoparsec.Text as TextAtto
 import qualified Data.Vector as Vector
-import qualified Deyamlify.Util.Vector as Vector
+import qualified YamlUnscrambler.Util.Vector as Vector
 import qualified Data.Vector.Generic as GenericVector
 
 

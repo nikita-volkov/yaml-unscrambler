@@ -1,8 +1,8 @@
-name: deyamlify
+name: yaml-unscrambler
 version: 0.1
 synopsis: Industrial strength declarative YAML parsing toolkit
-homepage: https://github.com/nikita-volkov/deyamlify
-bug-reports: https://github.com/nikita-volkov/deyamlify/issues
+homepage: https://github.com/nikita-volkov/yaml-unscrambler
+bug-reports: https://github.com/nikita-volkov/yaml-unscrambler/issues
 author: Nikita Volkov <nikita.y.volkov@mail.ru>
 maintainer: Nikita Volkov <nikita.y.volkov@mail.ru>
 copyright: (c) 2020 Nikita Volkov
@@ -13,29 +13,29 @@ cabal-version: >=1.10
 
 source-repository head
   type: git
-  location: git://github.com/nikita-volkov/deyamlify.git
+  location: git://github.com/nikita-volkov/yaml-unscrambler.git
 
 library
   hs-source-dirs: library
   default-extensions: BangPatterns, BlockArguments, ConstraintKinds, DataKinds, DefaultSignatures, DeriveDataTypeable, DeriveFoldable, DeriveFunctor, DeriveGeneric, DeriveTraversable, DerivingVia, EmptyDataDecls, FlexibleContexts, FlexibleInstances, FunctionalDependencies, GADTs, GeneralizedNewtypeDeriving, InstanceSigs, LambdaCase, LiberalTypeSynonyms, MagicHash, MultiParamTypeClasses, MultiWayIf, NoImplicitPrelude, NoMonomorphismRestriction, OverloadedStrings, PatternGuards, ParallelListComp, QuasiQuotes, RankNTypes, RecordWildCards, ScopedTypeVariables, StandaloneDeriving, StrictData, TemplateHaskell, TupleSections, TypeApplications, TypeFamilies, TypeOperators, UnboxedTuples
   default-language: Haskell2010
   exposed-modules:
-    Deyamlify
-    Deyamlify.Expectations
+    YamlUnscrambler
+    YamlUnscrambler.Expectations
   other-modules:
-    Deyamlify.AsciiAtto
-    Deyamlify.Model
-    Deyamlify.Prelude
-    Deyamlify.Util.ByteString
-    Deyamlify.Util.Maybe
-    Deyamlify.Util.HashMap
-    Deyamlify.Util.List
-    Deyamlify.Util.Yaml
-    Deyamlify.Util.Word8
-    Deyamlify.Util.Text
-    Deyamlify.Util.TextAttoparsec
-    Deyamlify.Util.Vector
-    Deyamlify.YamlValueParser
+    YamlUnscrambler.AsciiAtto
+    YamlUnscrambler.Model
+    YamlUnscrambler.Prelude
+    YamlUnscrambler.Util.ByteString
+    YamlUnscrambler.Util.Maybe
+    YamlUnscrambler.Util.HashMap
+    YamlUnscrambler.Util.List
+    YamlUnscrambler.Util.Yaml
+    YamlUnscrambler.Util.Word8
+    YamlUnscrambler.Util.Text
+    YamlUnscrambler.Util.TextAttoparsec
+    YamlUnscrambler.Util.Vector
+    YamlUnscrambler.YamlValueParser
   build-depends:
     aeson >=1 && <2,
     attoparsec >=0.13 && <0.14,

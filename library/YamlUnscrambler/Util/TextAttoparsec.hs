@@ -1,7 +1,7 @@
-module Deyamlify.Util.TextAttoparsec
+module YamlUnscrambler.Util.TextAttoparsec
 where
 
-import Deyamlify.Prelude
+import YamlUnscrambler.Prelude
 import Data.Attoparsec.Text
 import qualified GHC.Show
 import qualified Data.Text as Text

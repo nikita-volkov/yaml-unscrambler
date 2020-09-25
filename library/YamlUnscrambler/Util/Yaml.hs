@@ -1,7 +1,7 @@
-module Deyamlify.Util.Yaml
+module YamlUnscrambler.Util.Yaml
 where
 
-import Deyamlify.Prelude
+import YamlUnscrambler.Prelude
 import qualified Conduit
 import qualified Data.Aeson as Aeson
 import qualified Data.Yaml as Yaml

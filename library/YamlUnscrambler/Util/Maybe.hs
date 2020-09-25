@@ -1,7 +1,7 @@
-module Deyamlify.Util.Maybe
+module YamlUnscrambler.Util.Maybe
 where
 
-import Deyamlify.Prelude hiding (lookup)
+import YamlUnscrambler.Prelude hiding (lookup)
 
 
 firstNonEmpty :: Maybe a -> Maybe a -> Maybe a

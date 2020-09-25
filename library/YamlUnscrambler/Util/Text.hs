@@ -1,9 +1,9 @@
-module Deyamlify.Util.Text
+module YamlUnscrambler.Util.Text
 where
 
-import Deyamlify.Prelude
+import YamlUnscrambler.Prelude
 import qualified Data.Attoparsec.Text as Atto
-import qualified Deyamlify.Util.TextAttoparsec as Atto
+import qualified YamlUnscrambler.Util.TextAttoparsec as Atto
 
 
 deshowIfPossible :: Text -> Text

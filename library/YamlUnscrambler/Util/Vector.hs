@@ -1,7 +1,7 @@
-module Deyamlify.Util.Vector
+module YamlUnscrambler.Util.Vector
 where
 
-import Deyamlify.Prelude hiding (lookup)
+import YamlUnscrambler.Prelude hiding (lookup)
 import Data.Vector
 
 

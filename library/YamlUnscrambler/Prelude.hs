@@ -1,4 +1,4 @@
-module Deyamlify.Prelude
+module YamlUnscrambler.Prelude
 ( 
   module Exports,
   showAsText,

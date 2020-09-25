@@ -1,7 +1,7 @@
-module Deyamlify.Util.HashMap
+module YamlUnscrambler.Util.HashMap
 where
 
-import Deyamlify.Prelude hiding (lookup)
+import YamlUnscrambler.Prelude hiding (lookup)
 import Data.HashMap.Strict
 
 

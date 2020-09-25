@@ -1,7 +1,7 @@
-module Deyamlify.Model
+module YamlUnscrambler.Model
 where
 
-import Deyamlify.Prelude
+import YamlUnscrambler.Prelude
 
 
 {-|

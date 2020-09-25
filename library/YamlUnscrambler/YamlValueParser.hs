@@ -1,25 +1,25 @@
-module Deyamlify.YamlValueParser
+module YamlUnscrambler.YamlValueParser
 where
 
-import Deyamlify.Prelude hiding (fail, liftEither)
-import Deyamlify.Model
+import YamlUnscrambler.Prelude hiding (fail, liftEither)
+import YamlUnscrambler.Model
 import qualified Data.Yaml.Parser as Yaml
 import qualified Text.Libyaml as Libyaml
-import qualified Deyamlify.Util.ByteString as ByteString
+import qualified YamlUnscrambler.Util.ByteString as ByteString
 import qualified Data.ByteString as ByteString
 import qualified Data.Attoparsec.ByteString.Char8 as AsciiAtto
 import qualified Data.Attoparsec.Text as TextAtto
 import qualified Attoparsec.Time.ByteString as AsciiAtto
 import qualified Data.UUID as UUID
-import qualified Deyamlify.AsciiAtto as AsciiAtto
+import qualified YamlUnscrambler.AsciiAtto as AsciiAtto
 import qualified Data.Map.Strict as Map
 import qualified Data.ByteString.Base64 as Base64
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-import qualified Deyamlify.Util.HashMap as HashMap
-import qualified Deyamlify.Util.Text as Text
-import qualified Deyamlify.Util.Yaml as Yaml
+import qualified YamlUnscrambler.Util.HashMap as HashMap
+import qualified YamlUnscrambler.Util.Text as Text
+import qualified YamlUnscrambler.Util.Yaml as Yaml
 import qualified Data.List as List
 
 

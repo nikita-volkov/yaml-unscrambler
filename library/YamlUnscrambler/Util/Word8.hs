@@ -1,7 +1,7 @@
-module Deyamlify.Util.Word8
+module YamlUnscrambler.Util.Word8
 where
 
-import Deyamlify.Prelude
+import YamlUnscrambler.Prelude
 
 
 lowercaseInAscii :: Word8 -> Word8

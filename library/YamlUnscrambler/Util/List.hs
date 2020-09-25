@@ -1,7 +1,7 @@
-module Deyamlify.Util.List
+module YamlUnscrambler.Util.List
 where
 
-import Deyamlify.Prelude hiding (lookup)
+import YamlUnscrambler.Prelude hiding (lookup)
 
 
 firstNonEmpty :: [a] -> [a] -> [a]
