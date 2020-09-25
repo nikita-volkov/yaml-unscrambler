@@ -1,4 +1,4 @@
-module Deyamlify.Dsl
+module Deyamlify
 where
 
 import Deyamlify.Prelude hiding (String)
