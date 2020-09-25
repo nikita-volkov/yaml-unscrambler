@@ -15,7 +15,7 @@ module YamlUnscrambler
   doubleScalar,
   rationalScalar,
   boundedIntegerScalar,
-  unboundIntegerScalar,
+  unboundedIntegerScalar,
   timestampScalar,
   dayScalar,
   timeScalar,
@@ -174,9 +174,9 @@ boundedIntegerScalar :: (Integral a, FiniteBits a) => Signed -> NumeralSystem ->
 boundedIntegerScalar a b =
   bytesParsingScalar (Ex.BoundedIntegerScalar a b) (Parser.parseScalarAsBoundedInteger a b)
 
-unboundIntegerScalar :: MaxInputSize -> Signed -> NumeralSystem -> Scalar Integer
-unboundIntegerScalar a b c =
-  bytesParsingScalar (Ex.UnboundIntegerScalar a b c) (Parser.parseScalarAsUnboundInteger a b c)
+unboundedIntegerScalar :: MaxInputSize -> Signed -> NumeralSystem -> Scalar Integer
+unboundedIntegerScalar a b c =
+  bytesParsingScalar (Ex.UnboundedIntegerScalar a b c) (Parser.parseScalarAsUnboundedInteger a b c)
 
 timestampScalar :: Scalar UTCTime
 timestampScalar =

@@ -170,8 +170,8 @@ parseScalarAsBoundedInteger :: (Integral a, FiniteBits a) => Signed -> NumeralSy
 parseScalarAsBoundedInteger signed numeralSystem bytes =
   attoparseAscii (AsciiAtto.integralScalar signed numeralSystem) bytes
 
-parseScalarAsUnboundInteger :: MaxInputSize -> Signed -> NumeralSystem -> ByteString -> Eff Integer
-parseScalarAsUnboundInteger (MaxInputSize maxInputSize) signed numeralSystem bytes =
+parseScalarAsUnboundedInteger :: MaxInputSize -> Signed -> NumeralSystem -> ByteString -> Eff Integer
+parseScalarAsUnboundedInteger (MaxInputSize maxInputSize) signed numeralSystem bytes =
   if ByteString.length bytes <= maxInputSize
     then
       attoparseAscii (AsciiAtto.integralScalar signed numeralSystem) bytes

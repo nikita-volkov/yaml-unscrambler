@@ -44,7 +44,7 @@ data Scalar =
     |
   BoundedIntegerScalar Signed NumeralSystem
     |
-  UnboundIntegerScalar MaxInputSize Signed NumeralSystem
+  UnboundedIntegerScalar MaxInputSize Signed NumeralSystem
     |
   Iso8601TimestampScalar
     |
