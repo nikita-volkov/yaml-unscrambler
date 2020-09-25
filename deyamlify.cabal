@@ -17,13 +17,13 @@ source-repository head
 
 library
   hs-source-dirs: library
-  default-extensions: BangPatterns, BlockArguments, ConstraintKinds, DataKinds, DefaultSignatures, DeriveDataTypeable, DeriveFoldable, DeriveFunctor, DeriveGeneric, DeriveTraversable, EmptyDataDecls, FlexibleContexts, FlexibleInstances, FunctionalDependencies, GADTs, GeneralizedNewtypeDeriving, InstanceSigs, LambdaCase, LiberalTypeSynonyms, MagicHash, MultiParamTypeClasses, MultiWayIf, NoImplicitPrelude, NoMonomorphismRestriction, OverloadedStrings, PatternGuards, ParallelListComp, QuasiQuotes, RankNTypes, RecordWildCards, ScopedTypeVariables, StandaloneDeriving, StrictData, TemplateHaskell, TupleSections, TypeApplications, TypeFamilies, TypeOperators, UnboxedTuples
+  default-extensions: BangPatterns, BlockArguments, ConstraintKinds, DataKinds, DefaultSignatures, DeriveDataTypeable, DeriveFoldable, DeriveFunctor, DeriveGeneric, DeriveTraversable, DerivingVia, EmptyDataDecls, FlexibleContexts, FlexibleInstances, FunctionalDependencies, GADTs, GeneralizedNewtypeDeriving, InstanceSigs, LambdaCase, LiberalTypeSynonyms, MagicHash, MultiParamTypeClasses, MultiWayIf, NoImplicitPrelude, NoMonomorphismRestriction, OverloadedStrings, PatternGuards, ParallelListComp, QuasiQuotes, RankNTypes, RecordWildCards, ScopedTypeVariables, StandaloneDeriving, StrictData, TemplateHaskell, TupleSections, TypeApplications, TypeFamilies, TypeOperators, UnboxedTuples
   default-language: Haskell2010
   exposed-modules:
-    Deyamlify.ForParsing
+    Deyamlify.Dsl
+    Deyamlify.Expectations
   other-modules:
     Deyamlify.AsciiAtto
-    Deyamlify.Expectations
     Deyamlify.Model
     Deyamlify.Prelude
     Deyamlify.Util.ByteString
@@ -32,13 +32,13 @@ library
     Deyamlify.Util.List
     Deyamlify.Util.Yaml
     Deyamlify.Util.Word8
-    Deyamlify.YamlInterpreter
+    Deyamlify.YamlValueParser
   build-depends:
     aeson >=1 && <2,
     attoparsec >=0.13 && <0.14,
     attoparsec-data >=1.0.4 && <1.1,
     attoparsec-time >=1.0.1.1 && <1.1,
-    base >=4.9 && <5,
+    base >=4.11 && <5,
     base64 >=0.4.2.2 && <0.5,
     bytestring >=0.10 && <0.11,
     conduit >=1.3.2 && <1.4,

@@ -2,32 +2,8 @@ module Deyamlify.Expectations
 where
 
 import Deyamlify.Prelude hiding (String)
-
-
--- *
--------------------------
-
-{-|
-Specification of the maximum allowed length for the input.
-A safety measure to ensure that the parser doesn't exhaust memory
-when parsing to unlimited datatypes.
--}
-newtype MaxInputSize =
-  MaxInputSize Int
-
-newtype Signed =
-  Signed Bool
-
-data NumeralSystem =
-  DecimalNumeralSystem
-    |
-  HexadecimalNumeralSystem
-
-newtype CaseSensitive =
-  CaseSensitive Bool
-
-newtype Required =
-  Required Bool
+import Deyamlify.Model
+import qualified Deyamlify.Util.Maybe as Maybe
 
 
 -- *
@@ -67,9 +43,9 @@ data Scalar =
   Base64BinaryScalar
 
 data Mapping =
-  UniformMapping String Value
+  MonomorphicMapping String Value
     |
-  VaryingMapping CaseSensitive Fields
+  PolymorphicMapping CaseSensitive Fields
 
 data Sequence =
   MonomorphicSequence Value
@@ -110,3 +86,18 @@ data Elements =
   BothElements Elements Elements
     |
   QueryElements Value
+
+
+-- *
+-------------------------
+
+instance Semigroup Value where
+  (<>) (Value lScalars lMappings lSequences) (Value rScalars rMappings rSequences) =
+    Value
+      (lScalars <> rScalars)
+      (Maybe.firstNonEmpty lMappings rMappings)
+      (Maybe.firstNonEmpty lSequences rSequences)
+
+instance Monoid Value where
+  mempty =
+    Value [] Nothing Nothing
