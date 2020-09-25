@@ -147,12 +147,12 @@ assocVectorMapping key val zip =
     parse k v =
       zip <$> stringParser key k <*> valueParser val v
 
-fieldsMapping :: Bool -> Fields a -> Mapping a
-fieldsMapping caseSensitive fields =
+byKeyMapping :: Bool -> ByKey a -> Mapping a
+byKeyMapping caseSensitive byKey =
   Mapping expectation parse
   where
     expectation =
-      Ex.PolymorphicMapping (CaseSensitive caseSensitive) (fieldsExpectation fields)
+      Ex.ByKeyMapping (CaseSensitive caseSensitive) (byKeyExpectation byKey)
     parse input =
       if caseSensitive
         then let
@@ -162,7 +162,7 @@ fieldsMapping caseSensitive fields =
             HashMap.lookup k map
           lookupFirst kl =
             HashMap.lookupFirst kl map
-          in fieldsParser fields lookup lookupFirst
+          in byKeyParser byKey lookup lookupFirst
         else let
           map =
             HashMap.fromList (fmap (first Text.toLower) input)
@@ -170,7 +170,7 @@ fieldsMapping caseSensitive fields =
             HashMap.lookup (Text.toLower k) map
           lookupFirst kl =
             HashMap.lookupFirst (fmap Text.toLower kl) map
-          in fieldsParser fields lookup lookupFirst
+          in byKeyParser byKey lookup lookupFirst
 
 
 -- *
@@ -183,11 +183,11 @@ data Sequence a =
   }
   deriving (Functor)
 
-byPositionSequence :: ByPosition a -> Sequence a
-byPositionSequence byPosition =
+byOrderSequence :: ByOrder a -> Sequence a
+byOrderSequence byOrder =
   Sequence
-    (Ex.ByPositionSequence (byPositionExpectation byPosition))
-    (evalStateT (byPositionParser byPosition) . (0,))
+    (Ex.ByOrderSequence (byOrderExpectation byOrder))
+    (evalStateT (byOrderParser byOrder) . (0,))
 
 
 -- *
@@ -226,41 +226,41 @@ attoparsedString format parser =
 -- *
 -------------------------
 
-data Fields a =
-  Fields {
-    fieldsExpectation :: Ex.Fields,
-    fieldsParser :: (Text -> Maybe Yaml.YamlValue) -> ([Text] -> Maybe (Text, Yaml.YamlValue)) -> Parser.Eff a
+data ByKey a =
+  ByKey {
+    byKeyExpectation :: Ex.ByKey,
+    byKeyParser :: (Text -> Maybe Yaml.YamlValue) -> ([Text] -> Maybe (Text, Yaml.YamlValue)) -> Parser.Eff a
   }
   deriving (Functor)
 
-instance Applicative Fields where
+instance Applicative ByKey where
   pure =
-    Fields Ex.AnyFields . const . const . pure
-  (<*>) (Fields le lp) (Fields re rp) =
-    Fields
-      (Ex.BothFields le re)
+    ByKey Ex.AnyByKey . const . const . pure
+  (<*>) (ByKey le lp) (ByKey re rp) =
+    ByKey
+      (Ex.BothByKey le re)
       (\ a b -> lp a b <*> rp a b)
 
-instance Selective Fields where
-  select (Fields le lp) (Fields re rp) =
-    Fields
-      (Ex.BothFields le re)
+instance Selective ByKey where
+  select (ByKey le lp) (ByKey re rp) =
+    ByKey
+      (Ex.BothByKey le re)
       (\ a b -> select (lp a b) (rp a b))
 
-instance Alternative Fields where
+instance Alternative ByKey where
   empty =
-    Fields
-      Ex.NoFields
+    ByKey
+      Ex.NoByKey
       (const (const empty))
-  (<|>) (Fields le lp) (Fields re rp) =
-    Fields
-      (Ex.EitherFields le re)
+  (<|>) (ByKey le lp) (ByKey re rp) =
+    ByKey
+      (Ex.EitherByKey le re)
       (\ a b -> lp a b <|> rp a b)
 
-byKeyFields :: Text -> Value a -> Fields a
-byKeyFields key valueSpec =
-  Fields
-    (Ex.QueryFields [key] (valueExpectation valueSpec))
+atByKey :: Text -> Value a -> ByKey a
+atByKey key valueSpec =
+  ByKey
+    (Ex.LookupByKey [key] (valueExpectation valueSpec))
     parser
   where
     parser lookup _ =
@@ -271,10 +271,10 @@ byKeyFields key valueSpec =
         Nothing ->
           Parser.fail ("Key not found: " <> key)
 
-byOneOfKeysFields :: [Text] -> Value a -> Fields a
-byOneOfKeysFields keys valueSpec =
-  Fields
-    (Ex.QueryFields keys (valueExpectation valueSpec))
+atOneOfByKey :: [Text] -> Value a -> ByKey a
+atOneOfByKey keys valueSpec =
+  ByKey
+    (Ex.LookupByKey keys (valueExpectation valueSpec))
     parser
   where
     parser _ lookup =
@@ -289,41 +289,41 @@ byOneOfKeysFields keys valueSpec =
 -- *
 -------------------------
 
-data ByPosition a =
-  ByPosition {
-    byPositionExpectation :: Ex.ByPosition,
-    byPositionParser :: StateT (Int, [Yaml.YamlValue]) Parser.Eff a
+data ByOrder a =
+  ByOrder {
+    byOrderExpectation :: Ex.ByOrder,
+    byOrderParser :: StateT (Int, [Yaml.YamlValue]) Parser.Eff a
   }
   deriving (Functor)
 
-instance Applicative ByPosition where
+instance Applicative ByOrder where
   pure =
-    ByPosition Ex.AnyByPosition . pure
-  (<*>) (ByPosition le lp) (ByPosition re rp) =
-    ByPosition
-      (Ex.BothByPosition le re)
+    ByOrder Ex.AnyByOrder . pure
+  (<*>) (ByOrder le lp) (ByOrder re rp) =
+    ByOrder
+      (Ex.BothByOrder le re)
       (lp <*> rp)
 
-instance Selective ByPosition where
-  select (ByPosition le lp) (ByPosition re rp) =
-    ByPosition
-      (Ex.BothByPosition le re)
+instance Selective ByOrder where
+  select (ByOrder le lp) (ByOrder re rp) =
+    ByOrder
+      (Ex.BothByOrder le re)
       (select lp rp)
 
-instance Alternative ByPosition where
+instance Alternative ByOrder where
   empty =
-    ByPosition
-      Ex.NoByPosition
+    ByOrder
+      Ex.NoByOrder
       empty
-  (<|>) (ByPosition le lp) (ByPosition re rp) =
-    ByPosition
-      (Ex.EitherByPosition le re)
+  (<|>) (ByOrder le lp) (ByOrder re rp) =
+    ByOrder
+      (Ex.EitherByOrder le re)
       (lp <|> rp)
 
-fetchByPosition :: Value a -> ByPosition a
-fetchByPosition value =
-  ByPosition
-    (Ex.FetchByPosition (valueExpectation value))
+fetchByOrder :: Value a -> ByOrder a
+fetchByOrder value =
+  ByOrder
+    (Ex.FetchByOrder (valueExpectation value))
     parser
   where
     parser =

@@ -45,12 +45,12 @@ data Scalar =
 data Mapping =
   MonomorphicMapping String Value
     |
-  PolymorphicMapping CaseSensitive Fields
+  ByKeyMapping CaseSensitive ByKey
 
 data Sequence =
   MonomorphicSequence Value
     |
-  ByPositionSequence ByPosition
+  ByOrderSequence ByOrder
     |
   ByIndexSequence ByIndex
 
@@ -67,27 +67,27 @@ data String =
   {-| Must conform to a textually described format. -}
   FormattedString Text {-^ Description of the format. -}
 
-data Fields =
-  AnyFields
+data ByKey =
+  AnyByKey
     |
-  NoFields
+  NoByKey
     |
-  EitherFields Fields Fields
+  EitherByKey ByKey ByKey
     |
-  BothFields Fields Fields
+  BothByKey ByKey ByKey
     |
-  QueryFields [Text] {-^ Keys to lookup. -} Value
+  LookupByKey [Text] {-^ Keys to lookup. -} Value
 
-data ByPosition =
-  AnyByPosition
+data ByOrder =
+  AnyByOrder
     |
-  NoByPosition
+  NoByOrder
     |
-  EitherByPosition ByPosition ByPosition
+  EitherByOrder ByOrder ByOrder
     |
-  BothByPosition ByPosition ByPosition
+  BothByOrder ByOrder ByOrder
     |
-  FetchByPosition Value
+  FetchByOrder Value
 
 data ByIndex =
   AnyByIndex
@@ -98,7 +98,7 @@ data ByIndex =
     |
   BothByIndex ByIndex ByIndex
     |
-  IndexByIndex Int Value
+  LookupByIndex Int Value
 
 
 -- *
