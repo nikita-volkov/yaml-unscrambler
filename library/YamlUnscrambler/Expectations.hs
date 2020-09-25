@@ -28,9 +28,9 @@ data Scalar =
     |
   RationalScalar MaxInputSize
     |
-  IntScalar Signed NumeralSystem
+  BoundedIntegerScalar Signed NumeralSystem
     |
-  IntegerScalar Signed NumeralSystem
+  UnboundIntegerScalar MaxInputSize Signed NumeralSystem
     |
   Iso8601TimestampScalar
     |

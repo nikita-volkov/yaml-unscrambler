@@ -95,11 +95,14 @@ data Scalar a =
   }
   deriving (Functor)
 
+bytesParsingScalar expectation parser =
+  Scalar expectation (\ bytes _ _ -> parser bytes)
+
 stringScalar :: String a -> Scalar a
 stringScalar (String exp parse) =
   Scalar
     (Ex.StringScalar exp)
-    (\ bytes tag style -> Parser.decodeUtf8 bytes >>= parse)
+    (\ bytes _ _ -> Parser.decodeUtf8 bytes >>= parse)
 
 nullScalar :: Scalar ()
 nullScalar =
@@ -107,35 +110,47 @@ nullScalar =
 
 boolScalar :: Scalar Bool
 boolScalar =
-  Scalar Ex.BoolScalar (\ bytes _ _ -> Parser.parseScalarAsBool bytes)
+  bytesParsingScalar Ex.BoolScalar Parser.parseScalarAsBool
 
 scientificScalar :: Scalar Scientific
 scientificScalar =
-  Scalar Ex.ScientificScalar (\ bytes _ _ -> Parser.parseScalarAsScientific bytes)
+  bytesParsingScalar Ex.ScientificScalar Parser.parseScalarAsScientific
 
 doubleScalar :: Scalar Double
 doubleScalar =
-  Scalar Ex.DoubleScalar (\ bytes _ _ -> Parser.parseScalarAsDouble bytes)
+  bytesParsingScalar Ex.DoubleScalar Parser.parseScalarAsDouble
+
+rationalScalar :: MaxInputSize -> Scalar Rational
+rationalScalar a =
+  bytesParsingScalar (Ex.RationalScalar a) (Parser.parseScalarAsRational a)
+
+boundedIntegerScalar :: (Integral a, FiniteBits a) => Signed -> NumeralSystem -> Scalar a
+boundedIntegerScalar a b =
+  bytesParsingScalar (Ex.BoundedIntegerScalar a b) (Parser.parseScalarAsBoundedInteger a b)
+
+unboundIntegerScalar :: MaxInputSize -> Signed -> NumeralSystem -> Scalar Integer
+unboundIntegerScalar a b c =
+  bytesParsingScalar (Ex.UnboundIntegerScalar a b c) (Parser.parseScalarAsUnboundInteger a b c)
 
 timestampScalar :: Scalar UTCTime
 timestampScalar =
-  Scalar Ex.Iso8601TimestampScalar (\ bytes _ _ -> Parser.parseScalarAsIsoTimestamp bytes)
+  bytesParsingScalar Ex.Iso8601TimestampScalar Parser.parseScalarAsIsoTimestamp
 
 dayScalar :: Scalar Day
 dayScalar =
-  Scalar Ex.Iso8601DayScalar (\ bytes _ _ -> Parser.parseScalarAsIsoDate bytes)
+  bytesParsingScalar Ex.Iso8601DayScalar Parser.parseScalarAsIsoDate
 
 timeScalar :: Scalar TimeOfDay
 timeScalar =
-  Scalar Ex.Iso8601TimeScalar (\ bytes _ _ -> Parser.parseScalarAsIsoTime bytes)
+  bytesParsingScalar Ex.Iso8601TimeScalar Parser.parseScalarAsIsoTime
 
 uuidScalar :: Scalar UUID
 uuidScalar =
-  Scalar Ex.UuidScalar (\ bytes _ _ -> Parser.parseScalarAsUuid bytes)
+  bytesParsingScalar Ex.UuidScalar Parser.parseScalarAsUuid
 
 binaryScalar :: Scalar ByteString
 binaryScalar =
-  Scalar Ex.Base64BinaryScalar (\ bytes _ _ -> Parser.parseScalarAsBase64Binary bytes)
+  bytesParsingScalar Ex.Base64BinaryScalar Parser.parseScalarAsBase64Binary
 
 
 -- *
