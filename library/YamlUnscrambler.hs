@@ -22,6 +22,7 @@ module YamlUnscrambler
   uuidScalar,
   binaryScalar,
   Mapping,
+  foldMapping,
   vectorMapping,
   byKeyMapping,
   Sequence,
@@ -209,8 +210,17 @@ data Mapping a =
   }
   deriving (Functor)
 
-vectorMapping :: String key -> Value val -> (key -> val -> assoc) -> Mapping (Vector assoc)
-vectorMapping key val zip =
+foldMapping :: Fold (key, val) a -> String key -> Value val -> Mapping a
+foldMapping fold key val =
+  Mapping
+    (Ex.MonomorphicMapping (stringExpectation key) (valueExpectation val))
+    (Parser.foldMapping parse fold)
+  where
+    parse k v =
+      (,) <$> stringParser key k <*> valueParser val v
+
+vectorMapping :: (key -> val -> assoc) -> String key -> Value val -> Mapping (Vector assoc)
+vectorMapping zip key val =
   Mapping
     (Ex.MonomorphicMapping (stringExpectation key) (valueExpectation val))
     (Parser.foldMapping parse Fold.vector)
