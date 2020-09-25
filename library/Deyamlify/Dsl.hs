@@ -14,6 +14,7 @@ import qualified Data.Text as Text
 import qualified Data.Attoparsec.Text as TextAtto
 import qualified Data.Vector as Vector
 import qualified Deyamlify.Util.Vector as Vector
+import qualified Data.Vector.Generic as GenericVector
 
 
 -- * Execution
@@ -140,8 +141,8 @@ data Mapping a =
   }
   deriving (Functor)
 
-assocVectorMapping :: String key -> Value val -> (key -> val -> assoc) -> Mapping (Vector assoc)
-assocVectorMapping key val zip =
+vectorMapping :: String key -> Value val -> (key -> val -> assoc) -> Mapping (Vector assoc)
+vectorMapping key val zip =
   Mapping
     (Ex.MonomorphicMapping (stringExpectation key) (valueExpectation val))
     (Parser.foldMapping parse Fold.vector)
@@ -190,6 +191,10 @@ foldSequence fold value =
   Sequence
     (Ex.MonomorphicSequence (valueExpectation value))
     (Parser.foldSequence (valueParser value) fold)
+
+vectorSequence :: (GenericVector.Vector v a) => Value a -> Sequence (v a)
+vectorSequence =
+  foldSequence Fold.vector
 
 byOrderSequence :: ByOrder a -> Sequence a
 byOrderSequence byOrder =
