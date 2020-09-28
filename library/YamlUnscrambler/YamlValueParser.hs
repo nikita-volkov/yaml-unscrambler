@@ -53,7 +53,7 @@ runValueParser eff input =
     errMapping =
       Text.intercalate "\n" . fmap renderErr
     renderErr (Err path message) =
-      foldMap (\ x -> "/" <> x) (reverse path) <> ": " <>
+      "/" <> Text.intercalate "/" (reverse path) <> ": " <>
       message
 
 
