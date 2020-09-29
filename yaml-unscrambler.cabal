@@ -36,10 +36,8 @@ library
     YamlUnscrambler.Util.Text
     YamlUnscrambler.Util.TextAttoparsec
     YamlUnscrambler.Util.Vector
-    YamlUnscrambler.YamlValueParser
   build-depends:
-    acc >=0.1 && <0.2,
-    aeson >=1 && <2,
+    acc >=0.1.0.2 && <0.2,
     attoparsec >=0.13 && <0.14,
     attoparsec-time >=1.0.1.1 && <1.1,
     base >=4.11 && <5,
