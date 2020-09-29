@@ -456,16 +456,6 @@ instance Selective ByOrder where
       (Ex.BothByOrder le re)
       (select lp rp)
 
-instance Alternative ByOrder where
-  empty =
-    ByOrder
-      Ex.NoByOrder
-      empty
-  (<|>) (ByOrder le lp) (ByOrder re rp) =
-    ByOrder
-      (Ex.EitherByOrder le re)
-      (lp <|> rp)
-
 fetchByOrder :: Value a -> ByOrder a
 fetchByOrder value =
   ByOrder
