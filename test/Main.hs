@@ -18,7 +18,6 @@ main =
   defaultMain $ 
   testGroup "All tests" [
     testCase "Should fail on sequence when no sequence is specified" $ let
-      unscrambler :: U.Value [(Text, Maybe Int)]
       unscrambler =
         U.value [] (Just mapping) Nothing
         where
@@ -32,7 +31,6 @@ main =
                     U.nullScalar Nothing
                   intScalar =
                     fmap Just $ U.boundedIntegerScalar @Int (U.Signed True) U.DecimalNumeralSystem
-      input :: Text
       input =
         [NeatInterpolation.text|
           a: 2
@@ -46,4 +44,40 @@ main =
           assertFailure (show res)
         Left failure ->
           assertEqual (Text.unpack failure) "/c: Unexpected sequence node" failure
+    ,
+    testCase "Domain sum-type regression" $ let
+      unscrambler =
+        doc
+        where
+          doc =
+            U.mappingValue $
+            U.byKeyMapping (U.CaseSensitive True) $
+            U.atByKey "sums" sum
+          sum =
+            U.mappingValue $
+            U.foldMapping (,) Fold.list U.textString sumVariant
+          sumVariant =
+            U.mappingValue $
+            U.foldMapping (,) Fold.list U.textString params
+          params =
+            U.value [nullScalar, intScalar] Nothing Nothing
+            where
+              nullScalar =
+                U.nullScalar Nothing
+              intScalar =
+                fmap Just $ U.boundedIntegerScalar @Int (U.Signed True) U.DecimalNumeralSystem
+      input =
+        [NeatInterpolation.text|
+          sums:
+            A:
+              a:
+                - Int
+                - Bool
+              b: Char, Double
+          |]
+      in case U.parseText unscrambler input of
+        Right res ->
+          assertFailure (show res)
+        Left failure ->
+          assertEqual "" "/sums/A/a: Unexpected sequence node" failure
     ]
