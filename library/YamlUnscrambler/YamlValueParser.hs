@@ -27,31 +27,31 @@ import qualified Data.List as List
 -------------------------
 
 data Err =
-  Err
-    [Text]
-    {-^ Path. -}
-    Text
+  Err {
+    errPath :: [Text]
+    {-^ Path in reverse order. -}
+    ,
+    errMsg :: Text
     {-^ Message. -}
+  }
 
 type Eff =
-  ExceptT [Err] ((->) Env)
+  ExceptT (Acc Err) ((->) Env)
 
-data Env =
+newtype Env =
   Env
     (Map String Yaml.YamlValue)
     {-^ Anchor map from the RawDoc. -}
-    [Text]
-    {-^ Path. -}
 
 
 runValueParser :: (Yaml.YamlValue -> Eff a) -> ByteString -> Either Text a
 runValueParser eff input =
   do
     Yaml.RawDoc value map <- Yaml.parseByteStringToRawDoc input
-    first errMapping (runExceptT (eff value) (Env map []))
+    first errMapping (runExceptT (eff value) (Env map))
   where
     errMapping =
-      Text.intercalate "\n" . fmap renderErr
+      Text.intercalate "\n" . fmap renderErr . toList
     renderErr (Err path message) =
       "/" <> Text.intercalate "/" (reverse path) <> ": " <>
       message
@@ -267,7 +267,7 @@ attoparseText parser =
 resolveAnchor :: Libyaml.AnchorName -> Eff Yaml.YamlValue
 resolveAnchor anchorName =
   do
-    Env map _ <- ask
+    Env map <- ask
     case Map.lookup anchorName map of
       Just value ->
         return value
@@ -286,7 +286,7 @@ Execute an effect adding a segment to its context path.
 -}
 atKey :: Text -> Eff a -> Eff a
 atKey segment =
-  local (\ (Env map path) -> Env map (segment : path))
+  withExceptT $ fmap $ \ (Err path msg) -> Err (segment : path) msg
 
 atShowableKey :: Show key => key -> Eff a -> Eff a
 atShowableKey key =
@@ -297,9 +297,7 @@ Raise an error message with current context path.
 -}
 fail :: Text -> Eff a
 fail message =
-  do
-    Env _ path <- ask
-    throwError [Err path message]
+  throwError (pure (Err [] message))
 
 liftEither :: Either Text a -> Eff a
 liftEither =
