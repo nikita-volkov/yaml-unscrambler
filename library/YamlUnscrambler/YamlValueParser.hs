@@ -152,43 +152,43 @@ parseScalarAsString cont bytes =
 
 parseScalarAsScientific :: ByteString -> Eff Scientific
 parseScalarAsScientific bytes =
-  attoparseScalar AsciiAtto.scientific bytes
+  attoparseStdScalar "scientific" AsciiAtto.scientific bytes
 
 parseScalarAsDouble :: ByteString -> Eff Double
 parseScalarAsDouble bytes =
-  attoparseScalar AsciiAtto.double bytes
+  attoparseStdScalar "double" AsciiAtto.double bytes
 
 parseScalarAsRational :: MaxInputSize -> ByteString -> Eff Rational
 parseScalarAsRational (MaxInputSize maxInputSize) bytes =
   if ByteString.length bytes <= maxInputSize
     then
-      attoparseScalar AsciiAtto.rational bytes
+      attoparseStdScalar "rational" AsciiAtto.rational bytes
     else
       fail ("Input is larger then the expected maximum of " <> showAsText maxInputSize <> " bytes long")
 
 parseScalarAsBoundedInteger :: (Integral a, FiniteBits a) => Signed -> NumeralSystem -> ByteString -> Eff a
 parseScalarAsBoundedInteger signed numeralSystem bytes =
-  attoparseScalar (AsciiAtto.integralScalar signed numeralSystem) bytes
+  attoparseStdScalar "integer" (AsciiAtto.integralScalar signed numeralSystem) bytes
 
 parseScalarAsUnboundedInteger :: MaxInputSize -> Signed -> NumeralSystem -> ByteString -> Eff Integer
 parseScalarAsUnboundedInteger (MaxInputSize maxInputSize) signed numeralSystem bytes =
   if ByteString.length bytes <= maxInputSize
     then
-      attoparseScalar (AsciiAtto.integralScalar signed numeralSystem) bytes
+      attoparseStdScalar "integer" (AsciiAtto.integralScalar signed numeralSystem) bytes
     else
       fail ("Input is larger then the expected maximum of " <> showAsText maxInputSize <> " bytes long")
 
 parseScalarAsIsoTimestamp :: ByteString -> Eff UTCTime
 parseScalarAsIsoTimestamp bytes =
-  attoparseScalar AsciiAtto.utcTimeInISO8601 bytes
+  attoparseStdScalar "ISO-8601 timestamp" AsciiAtto.utcTimeInISO8601 bytes
 
 parseScalarAsIsoDate :: ByteString -> Eff Day
 parseScalarAsIsoDate bytes =
-  attoparseScalar AsciiAtto.dayInISO8601 bytes
+  attoparseStdScalar "ISO-8601 date" AsciiAtto.dayInISO8601 bytes
 
 parseScalarAsIsoTime :: ByteString -> Eff TimeOfDay
 parseScalarAsIsoTime bytes =
-  attoparseScalar AsciiAtto.timeOfDayInISO8601 bytes
+  attoparseStdScalar "ISO-8601 time" AsciiAtto.timeOfDayInISO8601 bytes
 
 parseScalarAsUuid :: ByteString -> Eff UUID
 parseScalarAsUuid bytes =
@@ -253,6 +253,12 @@ decodeUtf8 =
 attoparseScalar :: AsciiAtto.Parser a -> ByteString -> Eff a
 attoparseScalar parser =
   liftStringEither . AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
+
+attoparseStdScalar :: Text -> AsciiAtto.Parser a -> ByteString -> Eff a
+attoparseStdScalar format parser =
+  liftEither .
+  first (const ("Invalid " <> format)) .
+  AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
 
 attoparseText :: TextAtto.Parser a -> Text -> Eff a
 attoparseText parser =
