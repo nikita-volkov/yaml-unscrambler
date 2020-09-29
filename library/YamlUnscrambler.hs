@@ -9,6 +9,10 @@ module YamlUnscrambler
   Value,
   value,
   nullableValue,
+  -- *** Helpers
+  sequenceValue,
+  mappingValue,
+  scalarsValue,
   -- ** Scalar
   Scalar,
   stringScalar,
@@ -143,6 +147,21 @@ nullableValue scalars mappings sequences =
     ((nullScalar Nothing) : fmap (fmap Just) scalars)
     (fmap (fmap Just) mappings)
     (fmap (fmap Just) sequences)
+
+-- ** Helpers
+-------------------------
+
+sequenceValue :: Sequence a -> Value a
+sequenceValue sequence =
+  value [] Nothing (Just sequence)
+
+mappingValue :: Mapping a -> Value a
+mappingValue mapping =
+  value [] (Just mapping) Nothing
+
+scalarsValue :: [Scalar a] -> Value a
+scalarsValue scalars =
+  value scalars Nothing Nothing
 
 
 -- *
