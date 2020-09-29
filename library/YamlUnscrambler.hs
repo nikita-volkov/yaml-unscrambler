@@ -5,9 +5,11 @@ module YamlUnscrambler
   parseByteString,
   getExpectations,
   -- * DSL
+  -- ** Value
   Value,
   value,
   nullableValue,
+  -- ** Scalar
   Scalar,
   stringScalar,
   nullScalar,
@@ -22,23 +24,28 @@ module YamlUnscrambler
   timeScalar,
   uuidScalar,
   binaryScalar,
+  -- ** Mapping
   Mapping,
   foldMapping,
   vectorMapping,
   byKeyMapping,
+  -- ** Sequence
   Sequence,
   foldSequence,
   vectorSequence,
   byOrderSequence,
   byKeySequence,
+  -- ** String
   String,
   textString,
   enumString,
   formattedString,
   attoparsedString,
+  -- ** ByKey
   ByKey,
   atByKey,
   atOneOfByKey,
+  -- ** ByOrder
   ByOrder,
   fetchByOrder,
   -- * Value types
