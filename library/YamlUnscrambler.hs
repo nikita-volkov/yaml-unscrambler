@@ -229,8 +229,8 @@ vectorMapping :: (GenericVector.Vector v assoc) => (key -> val -> assoc) -> Stri
 vectorMapping zip =
   foldMapping zip Fold.vector
 
-byKeyMapping :: Bool -> ByKey Text a -> Mapping a
-byKeyMapping caseSensitive byKey =
+byKeyMapping :: CaseSensitive -> ByKey Text a -> Mapping a
+byKeyMapping (CaseSensitive caseSensitive) byKey =
   Mapping expectation parse
   where
     expectation =
