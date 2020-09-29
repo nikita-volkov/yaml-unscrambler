@@ -25,6 +25,7 @@ library
     YamlUnscrambler.Expectations
   other-modules:
     YamlUnscrambler.AsciiAtto
+    YamlUnscrambler.Err
     YamlUnscrambler.Model
     YamlUnscrambler.Prelude
     YamlUnscrambler.Util.ByteString

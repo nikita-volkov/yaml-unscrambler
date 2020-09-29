@@ -60,6 +60,7 @@ where
 
 import YamlUnscrambler.Prelude hiding (String)
 import YamlUnscrambler.Model
+import qualified YamlUnscrambler.Err as Err
 import qualified Attoparsec.Time.ByteString as AsciiAtto
 import qualified Control.Foldl as Fold
 import qualified Data.Attoparsec.ByteString.Char8 as AsciiAtto
@@ -111,66 +112,10 @@ getExpectations =
 -- *
 -------------------------
 
-data Err =
-  AtSegmentErr Text Err
-    |
-  KeyErr
-    Ex.String
-    {-^ Key expectation. -}
-    Text
-    {-^ Key input. -}
-    Text
-    {-^ String parsing error. -}
-    |
-  NoneOfMappingKeysFoundErr
-    (Ex.ByKey Text)
-    CaseSensitive
-    [Text]
-    |
-  NoneOfSequenceKeysFoundErr
-    (Ex.ByKey Int)
-    [Int]
-    |
-  ScalarErr
-    [Ex.Scalar]
-    {-^ Expected formats. -}
-    ByteString
-    {-^ Input. -}
-    Libyaml.Tag
-    {-^ Tag. -}
-    Libyaml.Style
-    {-^ Style. -}
-    (Maybe Text)
-    {-^ Last error. -}
-    |
-  UnexpectedScalarErr
-    Ex.Value
-    |
-  UnexpectedMappingErr
-    Ex.Value
-    |
-  UnexpectedSequenceErr
-    Ex.Value
-    |
-  UnknownAnchorErr
-    Text
-    |
-  NotEnoughElementsErr
-    Ex.ByOrder
-    Int
-
-data ByOrderErr =
-  NotEnoughElementsByOrderErr
-    Int
-
-
--- *
--------------------------
-
 data Value a =
   Value {
     valueExpectation :: Ex.Value,
-    valueParser :: Yaml.YamlValue -> Yaml.AnchorMap -> Either Err a
+    valueParser :: Yaml.YamlValue -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
 
@@ -190,7 +135,7 @@ value scalars mappings sequences =
         Yaml.Scalar bytes tag style _ ->
           case scalars of
             [] ->
-              Left (UnexpectedScalarErr expectations)
+              Left (Err.ErrAtPath [] (Err.UnexpectedScalarErr expectations))
             _ ->
               runExcept (asum (fmap parse scalars)) &
               first convErr
@@ -198,25 +143,25 @@ value scalars mappings sequences =
                 parse scalar =
                   except $ first (Last . Just) $ scalarParser scalar bytes tag style
                 convErr (Last msg) =
-                  ScalarErr scalarExpectations bytes tag style msg
+                  Err.ErrAtPath [] (Err.ScalarErr scalarExpectations bytes tag style msg)
         Yaml.Mapping input _ ->
           case mappings of
             Just mapping ->
               mappingParser mapping input anchorMap
             Nothing ->
-              Left (UnexpectedMappingErr expectations)
+              Left (Err.ErrAtPath [] (Err.UnexpectedMappingErr expectations))
         Yaml.Sequence input _ ->
           case sequences of
             Just sequence ->
               sequenceParser sequence input anchorMap
             Nothing ->
-              Left (UnexpectedSequenceErr expectations)
+              Left (Err.ErrAtPath [] (Err.UnexpectedSequenceErr expectations))
         Yaml.Alias anchorName ->
           case Map.lookup anchorName anchorMap of
             Just value ->
               parse value anchorMap
             Nothing ->
-              Left (UnknownAnchorErr (fromString anchorName))
+              Left (Err.ErrAtPath [] (Err.UnknownAnchorErr (fromString anchorName)))
 
 nullableValue :: [Scalar a] -> Maybe (Mapping a) -> Maybe (Sequence a) -> Value (Maybe a)
 nullableValue scalars mappings sequences =
@@ -369,7 +314,7 @@ binaryScalar =
 data Mapping a =
   Mapping {
     mappingExpectation :: Ex.Mapping,
-    mappingParser :: [(Text, Yaml.YamlValue)] -> Yaml.AnchorMap -> Either Err a
+    mappingParser :: [(Text, Yaml.YamlValue)] -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
 
@@ -385,9 +330,13 @@ foldMapping zip (Fold foldStep foldInit foldExtract) key val =
       where
         step state (keyInput, valInput) =
           do
-            parsedKey <- first (KeyErr (stringExpectation key) keyInput) (stringParser key keyInput)
-            parsedVal <- first (AtSegmentErr keyInput) (valueParser val valInput anchorMap)
+            parsedKey <- first keyErr (stringParser key keyInput)
+            parsedVal <- first (Err.atSegment keyInput) (valueParser val valInput anchorMap)
             return $! foldStep state (zip parsedKey parsedVal)
+          where
+            keyErr =
+              Err.ErrAtPath [] .
+              Err.KeyErr (stringExpectation key) keyInput
 
 byKeyMapping :: CaseSensitive -> ByKey Text a -> Mapping a
 byKeyMapping caseSensitive byKey =
@@ -417,7 +366,8 @@ byKeyMapping caseSensitive byKey =
                 HashMap.lookupFirst (fmap Text.toLower kl) map
               in byKeyParser byKey id lookup lookupFirst
         keysErr keys =
-          NoneOfMappingKeysFoundErr (byKeyExpectation byKey) caseSensitive (toList keys)
+          Err.ErrAtPath [] $
+          Err.NoneOfMappingKeysFoundErr (byKeyExpectation byKey) caseSensitive (toList keys)
 
 
 -- *
@@ -426,7 +376,7 @@ byKeyMapping caseSensitive byKey =
 data Sequence a =
   Sequence {
     sequenceExpectation :: Ex.Sequence,
-    sequenceParser :: [Yaml.YamlValue] -> Yaml.AnchorMap -> Either Err a
+    sequenceParser :: [Yaml.YamlValue] -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
 
@@ -442,7 +392,7 @@ foldSequence (Fold foldStep foldInit foldExtract) value =
       where
         step (!index, !state) input =
           valueParser value input anchorMap &
-          first (AtSegmentErr (showAsText index)) &
+          first (Err.atSegment (showAsText index)) &
           fmap (\ a -> (succ index, foldStep state a))
 
 byOrderSequence :: ByOrder a -> Sequence a
@@ -458,7 +408,8 @@ byOrderSequence (ByOrder {..}) =
           mapErr =
             \ case
               NotEnoughElementsByOrderErr a ->
-                NotEnoughElementsErr byOrderExpectation a
+                Err.ErrAtPath [] $
+                Err.NotEnoughElementsErr byOrderExpectation a
 
 byKeySequence :: ByKey Int a -> Sequence a
 byKeySequence (ByKey {..}) =
@@ -479,7 +430,8 @@ byKeySequence (ByKey {..}) =
           either Left (first keysErr)
       where
         keysErr keys =
-          NoneOfSequenceKeysFoundErr byKeyExpectation (toList keys)
+          Err.ErrAtPath [] $
+          Err.NoneOfSequenceKeysFoundErr byKeyExpectation (toList keys)
 
 
 -- *
@@ -548,7 +500,7 @@ data ByKey key a =
       (key -> Maybe Yaml.YamlValue) ->
       ([key] -> Maybe (key, Yaml.YamlValue)) ->
       Yaml.AnchorMap ->
-      ExceptT (Acc key) (Either Err) a
+      ExceptT (Acc key) (Either Err.ErrAtPath) a
   }
   deriving (Functor)
 
@@ -585,7 +537,7 @@ atByKey key valueSpec =
     parser renderKey lookup _ env =
       case lookup key of
         Just val ->
-          lift $ first (AtSegmentErr (renderKey key)) $
+          lift $ first (Err.atSegment (renderKey key)) $
           valueParser valueSpec val env
         Nothing ->
           throwE (pure key)
@@ -599,7 +551,7 @@ atOneOfByKey keys valueSpec =
     parser renderKey _ lookup env =
       case lookup keys of
         Just (key, val) ->
-          lift $ first (AtSegmentErr (renderKey key)) $
+          lift $ first (Err.atSegment (renderKey key)) $
           valueParser valueSpec val env
         Nothing ->
           throwE (fromList keys)
@@ -608,10 +560,14 @@ atOneOfByKey keys valueSpec =
 -- *
 -------------------------
 
+data ByOrderErr =
+  NotEnoughElementsByOrderErr
+    Int
+
 data ByOrder a =
   ByOrder {
     byOrderExpectation :: Ex.ByOrder,
-    byOrderParser :: StateT (Int, [Yaml.YamlValue]) (ReaderT Yaml.AnchorMap (ExceptT ByOrderErr (Either Err))) a
+    byOrderParser :: StateT (Int, [Yaml.YamlValue]) (ReaderT Yaml.AnchorMap (ExceptT ByOrderErr (Either Err.ErrAtPath))) a
   }
   deriving (Functor)
 
@@ -643,6 +599,6 @@ fetchByOrder value =
             do
               put (succ offset, t)
               anchorMap <- ask
-              lift $ lift $ lift $ first (AtSegmentErr (showAsText offset)) $ valueParser value h anchorMap
+              lift $ lift $ lift $ first (Err.atSegment (showAsText offset)) $ valueParser value h anchorMap
           _ ->
             throwError $ NotEnoughElementsByOrderErr offset
