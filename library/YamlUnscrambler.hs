@@ -257,28 +257,33 @@ vectorMapping zip =
 
 byKeyMapping :: CaseSensitive -> ByKey Text a -> Mapping a
 byKeyMapping (CaseSensitive caseSensitive) byKey =
-  Mapping expectation parse
+  Mapping expectation parser
   where
     expectation =
       Ex.ByKeyMapping (CaseSensitive caseSensitive) (byKeyExpectation byKey)
-    parse input =
-      if caseSensitive
-        then let
-          map =
-            HashMap.fromList input
-          lookup k =
-            HashMap.lookup k map
-          lookupFirst kl =
-            HashMap.lookupFirst kl map
-          in byKeyParser byKey lookup lookupFirst
-        else let
-          map =
-            HashMap.fromList (fmap (first Text.toLower) input)
-          lookup k =
-            HashMap.lookup (Text.toLower k) map
-          lookupFirst kl =
-            HashMap.lookupFirst (fmap Text.toLower kl) map
-          in byKeyParser byKey lookup lookupFirst
+    parser input =
+      runExceptT parser >>= either handleLookupErr return
+      where
+        parser =
+          if caseSensitive
+            then let
+              map =
+                HashMap.fromList input
+              lookup k =
+                HashMap.lookup k map
+              lookupFirst kl =
+                HashMap.lookupFirst kl map
+              in byKeyParser byKey lookup lookupFirst
+            else let
+              map =
+                HashMap.fromList (fmap (first Text.toLower) input)
+              lookup k =
+                HashMap.lookup (Text.toLower k) map
+              lookupFirst kl =
+                HashMap.lookupFirst (fmap Text.toLower kl) map
+              in byKeyParser byKey lookup lookupFirst
+        handleLookupErr keys =
+          Parser.fail ("Found none of the following keys: " <> showAsText keys)
 
 
 -- *
@@ -309,11 +314,11 @@ byOrderSequence byOrder =
 
 byKeySequence :: ByKey Int a -> Sequence a
 byKeySequence byKey =
-  Sequence expectation parse
+  Sequence expectation parser
   where
     expectation =
       Ex.ByKeySequence (byKeyExpectation byKey)
-    parse input =
+    parser input =
       let
         vector =
           Vector.fromList input
@@ -321,7 +326,12 @@ byKeySequence byKey =
           vector Vector.!? k
         lookupFirst kl =
           Vector.lookupFirst kl vector
-        in byKeyParser byKey lookup lookupFirst
+        in
+          runExceptT (byKeyParser byKey lookup lookupFirst) >>=
+          either handleLookupErr return
+      where
+        handleLookupErr keys =
+          Parser.fail ("Found none of the following keys: " <> showAsText keys)
 
 
 -- *
@@ -363,7 +373,7 @@ attoparsedString format parser =
 data ByKey key a =
   ByKey {
     byKeyExpectation :: Ex.ByKey key,
-    byKeyParser :: (key -> Maybe Yaml.YamlValue) -> ([key] -> Maybe (key, Yaml.YamlValue)) -> Parser.Eff a
+    byKeyParser :: (key -> Maybe Yaml.YamlValue) -> ([key] -> Maybe (key, Yaml.YamlValue)) -> ExceptT (Acc key) Parser.Eff a
   }
   deriving (Functor)
 
@@ -400,10 +410,11 @@ atByKey key valueSpec =
     parser lookup _ =
       case lookup key of
         Just val ->
+          lift $
           Parser.atShowableKey key $
           valueParser valueSpec val
         Nothing ->
-          Parser.fail ("Key not found: " <> showAsText key)
+          throwE (pure key)
 
 atOneOfByKey :: Show key => [key] -> Value a -> ByKey key a
 atOneOfByKey keys valueSpec =
@@ -414,10 +425,11 @@ atOneOfByKey keys valueSpec =
     parser _ lookup =
       case lookup keys of
         Just (key, val) ->
+          lift $
           Parser.atShowableKey key $
           valueParser valueSpec val
         Nothing ->
-          Parser.fail ("None of the keys found: " <> showAsText keys)
+          throwE (fromList keys)
 
 
 -- *

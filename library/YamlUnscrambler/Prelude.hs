@@ -141,6 +141,9 @@ import Data.Time as Exports
 import Data.Time.Clock.System as Exports
 import Data.Time.Clock.POSIX as Exports
 
+-- acc
+-------------------------
+import Acc as Exports (Acc)
 
 showAsText :: Show a => a -> Text
 showAsText = show >>> fromString
