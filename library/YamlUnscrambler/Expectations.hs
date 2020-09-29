@@ -59,8 +59,6 @@ data Scalar =
 data Mapping =
   MonomorphicMapping String Value
     |
-  ByOrderMapping ByOrder
-    |
   ByKeyMapping CaseSensitive (ByKey Text)
 
 data Sequence =
@@ -96,10 +94,6 @@ data ByKey key =
 
 data ByOrder =
   AnyByOrder
-    |
-  NoByOrder
-    |
-  EitherByOrder ByOrder ByOrder
     |
   BothByOrder ByOrder ByOrder
     |
