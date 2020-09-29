@@ -36,7 +36,7 @@ reason =
       foldMap (\ a -> text a <> ". ") e <>
       "Expecting one of the following formats: " <>
       intercalate ", " (fmap scalarExpectation a) <>
-      foldMap (\ a -> ". Got input: " <> text a) (Text.decodeUtf8' b)
+      foldMap (\ a -> ". Got input: " <> string (show a)) (Text.decodeUtf8' b)
     Err.UnexpectedScalarErr a ->
       "Unexpected scalar value"
     Err.UnexpectedMappingErr a ->
