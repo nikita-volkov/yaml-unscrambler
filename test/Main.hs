@@ -83,4 +83,41 @@ main =
           assertFailure (show res)
         Left failure ->
           assertEqual "" "/sums/A/a: Unexpected sequence node" failure
+    ,
+    testCase "Domain sum-type correct" $ let
+      unscrambler =
+        doc
+        where
+          doc =
+            U.mappingValue $
+            U.byKeyMapping (U.CaseSensitive True) $
+            asum [
+              Just <$> U.atByKey "sums" sum,
+              pure Nothing
+              ]
+          sum =
+            U.mappingValue $
+            U.foldMapping (,) Fold.list U.textString sumVariant
+          sumVariant =
+            U.mappingValue $
+            U.foldMapping (,) Fold.list U.textString params
+          params =
+            U.value [nullScalar, valueScalar] Nothing Nothing
+            where
+              nullScalar =
+                U.nullScalar Nothing
+              valueScalar =
+                fmap Just $ U.stringScalar U.textString
+      input =
+        [NeatInterpolation.text|
+          sums:
+            A:
+              a: Text
+              b: Int
+          |]
+      in case U.parseText unscrambler input of
+        Right res ->
+          assertEqual "" (Just [("A", [("a", Just "Text"), ("b", Just "Int")])]) res
+        Left failure ->
+          assertFailure (Text.unpack failure)
     ]
