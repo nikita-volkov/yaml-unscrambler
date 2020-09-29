@@ -25,6 +25,7 @@ library
     YamlUnscrambler.Expectations
   other-modules:
     YamlUnscrambler.AsciiAtto
+    YamlUnscrambler.CompactErrRendering
     YamlUnscrambler.Err
     YamlUnscrambler.Model
     YamlUnscrambler.Prelude
@@ -53,6 +54,7 @@ library
     scientific >=0.3.6.2 && <0.4,
     selective >=0.4 && <0.5,
     text >=1 && <2,
+    text-builder >=0.6.6.1 && <0.7,
     time >=1.9 && <2,
     transformers >=0.5 && <0.6,
     unordered-containers >=0.2.10 && <0.3,

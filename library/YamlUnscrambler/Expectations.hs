@@ -95,10 +95,6 @@ data ByKey key =
 data ByOrder =
   AnyByOrder
     |
-  NoByOrder
-    |
-  EitherByOrder ByOrder ByOrder
-    |
   BothByOrder ByOrder ByOrder
     |
   FetchByOrder Value

@@ -18,6 +18,7 @@ import YamlUnscrambler.Prelude hiding (String)
 import YamlUnscrambler.Model
 import qualified YamlUnscrambler.Expectations as Ex
 import qualified Text.Libyaml as Libyaml
+import qualified Text.Builder as TextBuilder
 
 
 data ErrAtPath =

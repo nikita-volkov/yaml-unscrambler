@@ -78,6 +78,7 @@ import qualified Data.Vector.Generic as GenericVector
 import qualified Data.Yaml.Parser as Yaml
 import qualified Text.Libyaml as Libyaml
 import qualified YamlUnscrambler.AsciiAtto as AsciiAtto
+import qualified YamlUnscrambler.CompactErrRendering as CompactErrRendering
 import qualified YamlUnscrambler.Expectations as Ex
 import qualified YamlUnscrambler.Util.ByteString as ByteString
 import qualified YamlUnscrambler.Util.HashMap as HashMap
@@ -94,10 +95,10 @@ parseText value =
   parseByteString value . Text.encodeUtf8
 
 parseByteString :: Value a -> ByteString -> Either Text a
-parseByteString value input =
+parseByteString (Value {..}) input =
   do
     Yaml.RawDoc value map <- Yaml.parseByteStringToRawDoc input
-    error "TODO"
+    valueParser value map & first CompactErrRendering.renderErrAtPath
 
 {-|
 Get a tree of expectations, which can then be converted into

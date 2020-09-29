@@ -43,7 +43,7 @@ main =
         Right res ->
           assertFailure (show res)
         Left failure ->
-          assertEqual (Text.unpack failure) "/c: Unexpected sequence node" failure
+          assertEqual (Text.unpack failure) "Error at path /c. Unexpected sequence value" failure
     ,
     testCase "Domain sum-type regression" $ let
       unscrambler =
@@ -82,7 +82,7 @@ main =
         Right res ->
           assertFailure (show res)
         Left failure ->
-          assertEqual "" "/sums/A/a: Unexpected sequence node" failure
+          assertEqual "" "Error at path /sums/A/a. Unexpected sequence value" failure
     ,
     testCase "Domain sum-type correct" $ let
       unscrambler =
@@ -120,4 +120,41 @@ main =
           assertEqual "" (Just [("A", [("a", Just "Text"), ("b", Just "Int")])]) res
         Left failure ->
           assertFailure (Text.unpack failure)
+    ,
+    testCase "Scalar errors are readable" $ let
+      unscrambler =
+        doc
+        where
+          doc =
+            U.mappingValue $
+            U.byKeyMapping (U.CaseSensitive True) $
+            asum [
+              Just <$> U.atByKey "sums" sum,
+              pure Nothing
+              ]
+          sum =
+            U.mappingValue $
+            U.foldMapping (,) Fold.list U.textString sumVariant
+          sumVariant =
+            U.mappingValue $
+            U.foldMapping (,) Fold.list U.textString params
+          params =
+            U.value [nullScalar, intScalar] Nothing Nothing
+            where
+              nullScalar =
+                U.nullScalar Nothing
+              intScalar =
+                fmap Just $ U.boundedIntegerScalar @Int (U.Signed True) U.DecimalNumeralSystem
+      input =
+        [NeatInterpolation.text|
+          sums:
+            A:
+              a: Int
+              b: Char
+          |]
+      in case U.parseText unscrambler input of
+        Right res ->
+          assertFailure (show res)
+        Left failure ->
+          assertEqual "" "Error at path /sums/A/a. Failed reading: takeWhile1. Expecting one of the following formats: null, signed decimal. Got input: Int" failure
     ]
