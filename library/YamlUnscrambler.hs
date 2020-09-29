@@ -1,6 +1,7 @@
 module YamlUnscrambler
 (
   -- * Execution
+  parseText,
   parseByteString,
   getExpectations,
   -- * DSL
@@ -62,10 +63,15 @@ import qualified Data.Attoparsec.Text as TextAtto
 import qualified Data.Vector as Vector
 import qualified YamlUnscrambler.Util.Vector as Vector
 import qualified Data.Vector.Generic as GenericVector
+import qualified Data.Text.Encoding as Text
 
 
 -- * Execution
 -------------------------
+
+parseText :: Value a -> Text -> Either Text a
+parseText value =
+  parseByteString value . Text.encodeUtf8
 
 parseByteString :: Value a -> ByteString -> Either Text a
 parseByteString value input =
