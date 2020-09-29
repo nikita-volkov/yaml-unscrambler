@@ -52,7 +52,10 @@ main =
           doc =
             U.mappingValue $
             U.byKeyMapping (U.CaseSensitive True) $
-            U.atByKey "sums" sum
+            asum [
+              Just <$> U.atByKey "sums" sum,
+              pure Nothing
+              ]
           sum =
             U.mappingValue $
             U.foldMapping (,) Fold.list U.textString sumVariant
