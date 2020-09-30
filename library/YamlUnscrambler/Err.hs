@@ -37,6 +37,9 @@ data Err =
     (Ex.ByKey Text)
     CaseSensitive
     [Text]
+    {-^ Available keys. -}
+    [Text]
+    {-^ Keys looked up. -}
     |
   NoneOfSequenceKeysFoundErr
     (Ex.ByKey Int)

@@ -28,9 +28,9 @@ reason =
     Err.KeyErr a b c ->
       text c <> ". On input: " <> string (show b) <> ". " <>
       "Expecting: " <> stringExpectation a
-    Err.NoneOfMappingKeysFoundErr a b c ->
-      "None of keys found: " <> string (show c) <> ", " <>
-      caseSensitive b
+    Err.NoneOfMappingKeysFoundErr a b c d ->
+      "None of keys found " <> caseSensitively b <> ": " <> string (show d) <> ". " <>
+      "Keys available: " <> string (show c)
     Err.NoneOfSequenceKeysFoundErr a b ->
       "None of indices found: " <> string (show b)
     Err.ScalarErr a b c d e ->
@@ -109,7 +109,10 @@ byOrderExpectation =
           count (succ a) c
 
 caseSensitive (CaseSensitive a) =
-  "case " <> bool "insensitive" "sensitive" a
+  "case-" <> bool "insensitive" "sensitive" a
+
+caseSensitively (CaseSensitive a) =
+  "case-" <> bool "insensitively" "sensitively" a
 
 signed (Signed a) =
   bool "unsigned" "signed" a

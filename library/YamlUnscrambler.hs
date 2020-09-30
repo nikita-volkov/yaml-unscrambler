@@ -370,7 +370,10 @@ byKeyMapping caseSensitive byKey =
               in byKeyParser byKey id lookup lookupFirst
         keysErr keys =
           Err.ErrAtPath [] $
-          Err.NoneOfMappingKeysFoundErr (byKeyExpectation byKey) caseSensitive (toList keys)
+          Err.NoneOfMappingKeysFoundErr (byKeyExpectation byKey) caseSensitive keysAvail (toList keys)
+          where
+            keysAvail =
+              fmap fst input
 
 
 -- *
