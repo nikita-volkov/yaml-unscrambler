@@ -204,16 +204,16 @@ bytesParsingScalar expectation parser =
 attoparsedScalar :: Ex.Scalar -> AsciiAtto.Parser a -> Scalar a
 attoparsedScalar expectation parser =
   bytesParsingScalar expectation $
-  first fromString . AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
+  first (const "") . AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
 
-protectedAttoparsedScalar :: MaxInputSize -> Ex.Scalar -> AsciiAtto.Parser a -> Scalar a
-protectedAttoparsedScalar (MaxInputSize maxInputSize) expectation parser =
-  bytesParsingScalar expectation $ \ bytes ->
+sizedScalar :: MaxInputSize -> Scalar a -> Scalar a
+sizedScalar (MaxInputSize maxInputSize) (Scalar {..}) =
+  Scalar scalarExpectation $ \ bytes tag style ->
     if ByteString.length bytes <= maxInputSize
       then
-        first fromString $ AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput) bytes
+        scalarParser bytes tag style
       else
-        Left ("Input is larger then the expected maximum of " <> showAsText maxInputSize <> " bytes long")
+        Left ("Input is longer then the expected maximum of " <> showAsText maxInputSize <> " bytes")
 
 stringScalar :: String a -> Scalar a
 stringScalar (String exp parse) =
@@ -262,7 +262,8 @@ doubleScalar =
 
 rationalScalar :: MaxInputSize -> Scalar Rational
 rationalScalar a =
-  protectedAttoparsedScalar a (Ex.RationalScalar a) AsciiAtto.rational
+  sizedScalar a $
+  attoparsedScalar (Ex.RationalScalar a) AsciiAtto.rational
 
 {-|
 E.g., 'Int', 'Int64', 'Word', but not 'Integer'.
@@ -273,7 +274,8 @@ boundedIntegerScalar a b =
 
 unboundedIntegerScalar :: MaxInputSize -> Signed -> NumeralSystem -> Scalar Integer
 unboundedIntegerScalar a b c =
-  protectedAttoparsedScalar a (Ex.UnboundedIntegerScalar a b c) (AsciiAtto.integralScalar b c)
+  sizedScalar a $
+  attoparsedScalar (Ex.UnboundedIntegerScalar a b c) (AsciiAtto.integralScalar b c)
 
 timestampScalar :: Scalar UTCTime
 timestampScalar =

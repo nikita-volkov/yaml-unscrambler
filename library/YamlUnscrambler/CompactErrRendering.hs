@@ -10,6 +10,7 @@ import Text.Builder
 import qualified YamlUnscrambler.Err as Err
 import qualified YamlUnscrambler.Expectations as Ex
 import qualified Data.Text.Encoding as Text
+import qualified Data.Text as Text
 
 
 renderErrAtPath :: Err.ErrAtPath -> Text
@@ -33,7 +34,7 @@ reason =
     Err.NoneOfSequenceKeysFoundErr a b ->
       "None of indices found: " <> string (show b)
     Err.ScalarErr a b c d e ->
-      foldMap (\ a -> text a <> ". ") e <>
+      foldMap (\ a -> text a <> ". ") (mfilter (not . Text.null) e) <>
       "Expecting one of the following formats: " <>
       intercalate ", " (fmap scalarExpectation a) <>
       foldMap (\ a -> ". Got input: " <> string (show a)) (Text.decodeUtf8' b)
