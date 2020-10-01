@@ -156,5 +156,5 @@ main =
         Right res ->
           assertFailure (show res)
         Left failure ->
-          assertEqual "" "Error at path /sums/A/a. Failed reading: takeWhile1. Expecting one of the following formats: null, signed decimal. Got input: \"Int\"" failure
+          assertEqual "" "Error at path /sums/A/a. Expecting one of the following formats: null, signed decimal. Got input: \"Int\"" failure
     ]
