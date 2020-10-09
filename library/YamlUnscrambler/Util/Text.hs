@@ -3,7 +3,7 @@ where
 
 import YamlUnscrambler.Prelude
 import qualified Data.Attoparsec.Text as Atto
-import qualified YamlUnscrambler.Util.TextAttoparsec as Atto
+import qualified Attoparsec.Data as Atto
 
 
 deshowIfPossible :: Text -> Text
@@ -15,4 +15,4 @@ deshow =
   first fromString . Atto.parseOnly parser
   where
     parser =
-      Atto.deshow <* Atto.endOfInput
+      Atto.show <* Atto.endOfInput
