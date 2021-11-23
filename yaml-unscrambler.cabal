@@ -1,5 +1,5 @@
 name: yaml-unscrambler
-version: 0.1.0.3
+version: 0.1.0.4
 synopsis: Flexible declarative YAML parsing toolkit
 stability: Experimental
 homepage: https://github.com/nikita-volkov/yaml-unscrambler
@@ -38,7 +38,7 @@ library
     YamlUnscrambler.Util.Text
     YamlUnscrambler.Util.Vector
   build-depends:
-    acc >=0.1.0.2 && <0.2,
+    acc >=0.1.0.2 && <0.3,
     attoparsec >=0.13 && <0.15,
     attoparsec-data >=1.0.5.2 && <1.1,
     attoparsec-time >=1.0.1.2 && <1.1,
