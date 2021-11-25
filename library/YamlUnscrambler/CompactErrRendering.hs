@@ -6,7 +6,7 @@ where
 
 import YamlUnscrambler.Prelude hiding (intercalate)
 import YamlUnscrambler.Model
-import Text.Builder
+import TextBuilder
 import qualified YamlUnscrambler.Err as Err
 import qualified YamlUnscrambler.Expectations as Ex
 import qualified Data.Text.Encoding as Text
@@ -15,7 +15,7 @@ import qualified Data.Text as Text
 
 renderErrAtPath :: Err.ErrAtPath -> Text
 renderErrAtPath =
-  run . errAtPath
+  buildText . errAtPath
 
 path a =
   "/" <> intercalate "/" (fmap text a)
