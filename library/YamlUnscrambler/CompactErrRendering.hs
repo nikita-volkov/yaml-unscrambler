@@ -6,7 +6,7 @@ where
 
 import YamlUnscrambler.Prelude hiding (intercalate)
 import YamlUnscrambler.Model
-import TextBuilder
+import TextBuilderDev
 import qualified YamlUnscrambler.Err as Err
 import qualified YamlUnscrambler.Expectations as Ex
 import qualified Data.Text.Encoding as Text
