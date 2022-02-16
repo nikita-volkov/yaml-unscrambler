@@ -1,5 +1,5 @@
 name: yaml-unscrambler
-version: 0.1.0.4
+version: 0.1.0.6
 synopsis: Flexible declarative YAML parsing toolkit
 stability: Experimental
 homepage: https://github.com/nikita-volkov/yaml-unscrambler
@@ -38,13 +38,13 @@ library
     YamlUnscrambler.Util.Text
     YamlUnscrambler.Util.Vector
   build-depends:
-    acc >=0.1.0.2 && <0.3,
+    acc >=0.2.0.1 && <0.3,
     attoparsec >=0.13 && <0.15,
     attoparsec-data >=1.0.5.2 && <1.1,
     attoparsec-time >=1.0.1.2 && <1.1,
     base >=4.11 && <5,
     base64 >=0.4.2.2 && <0.5,
-    bytestring >=0.10 && <0.11,
+    bytestring >=0.10 && <0.12,
     conduit >=1.3.2 && <1.4,
     containers >=0.6.2 && <0.7,
     foldl >=1.4 && <2,
@@ -52,11 +52,11 @@ library
     libyaml >=0.1.2 && <0.2,
     mtl >=2.2 && <3,
     scientific >=0.3.6.2 && <0.4,
-    selective >=0.4 && <0.5,
-    text >=1 && <2,
+    selective >=0.5 && <0.6,
+    text >=1 && <3,
     text-builder >=0.7 && <0.8,
     time >=1.9 && <2,
-    transformers >=0.5 && <0.6,
+    transformers >=0.5 && <0.7,
     unordered-containers >=0.2.10 && <0.3,
     uuid >=1.3 && <2,
     vector >=0.12 && <0.13,
@@ -73,7 +73,7 @@ test-suite test
     neat-interpolation >=0.5.1.2 && <0.6,
     QuickCheck >=2.8.1 && <3,
     quickcheck-instances >=0.3.11 && <0.4,
-    rerebase >=1.9 && <2,
+    rerebase >=1.14 && <2,
     tasty >=0.12 && <2,
     tasty-hunit >=0.9 && <0.11,
     tasty-quickcheck >=0.9 && <0.11,
