@@ -1,107 +1,87 @@
 module YamlUnscrambler.Expectations
-(
-  Value(..),
-  Scalar(..),
-  Mapping(..),
-  Sequence(..),
-  String(..),
-  ByKey(..),
-  ByOrder(..),
-  -- *
-  MaxInputSize(..),
-  Signed(..),
-  NumeralSystem(..),
-  CaseSensitive(..),
-)
+  ( Value (..),
+    Scalar (..),
+    Mapping (..),
+    Sequence (..),
+    String (..),
+    ByKey (..),
+    ByOrder (..),
+
+    -- *
+    MaxInputSize (..),
+    Signed (..),
+    NumeralSystem (..),
+    CaseSensitive (..),
+  )
 where
 
-import YamlUnscrambler.Prelude hiding (String)
 import YamlUnscrambler.Model
+import YamlUnscrambler.Prelude hiding (String)
 import qualified YamlUnscrambler.Util.Maybe as Maybe
 
+-- *
+
+data Value
+  = Value
+      [Scalar]
+      (Maybe Mapping)
+      (Maybe Sequence)
+
+data Scalar
+  = StringScalar String
+  | NullScalar
+  | BoolScalar
+  | ScientificScalar
+  | DoubleScalar
+  | RationalScalar MaxInputSize
+  | BoundedIntegerScalar Signed NumeralSystem
+  | UnboundedIntegerScalar MaxInputSize Signed NumeralSystem
+  | Iso8601TimestampScalar
+  | Iso8601DayScalar
+  | Iso8601TimeScalar
+  | UuidScalar
+  | Base64BinaryScalar
+
+data Mapping
+  = MonomorphicMapping String Value
+  | ByKeyMapping CaseSensitive (ByKey Text)
+
+data Sequence
+  = MonomorphicSequence Value
+  | ByOrderSequence ByOrder
+  | ByKeySequence (ByKey Int)
 
 -- *
--------------------------
 
-data Value =
-  Value
-    [Scalar]
-    (Maybe Mapping)
-    (Maybe Sequence)
+data String
+  = -- | Any string as it is.
+    AnyString
+  | -- | One of options. Suitable for enumerations.
+    OneOfString
+      CaseSensitive
+      [Text]
+      -- ^ Options.
+  | -- | Must conform to a textually described format.
+    FormattedString
+      Text
+      -- ^ Description of the format.
 
-data Scalar =
-  StringScalar String
-    |
-  NullScalar
-    |
-  BoolScalar
-    |
-  ScientificScalar
-    |
-  DoubleScalar
-    |
-  RationalScalar MaxInputSize
-    |
-  BoundedIntegerScalar Signed NumeralSystem
-    |
-  UnboundedIntegerScalar MaxInputSize Signed NumeralSystem
-    |
-  Iso8601TimestampScalar
-    |
-  Iso8601DayScalar
-    |
-  Iso8601TimeScalar
-    |
-  UuidScalar
-    |
-  Base64BinaryScalar
+data ByKey key
+  = AnyByKey
+  | NoByKey
+  | EitherByKey (ByKey key) (ByKey key)
+  | BothByKey (ByKey key) (ByKey key)
+  | LookupByKey
+      [key]
+      -- ^ Keys to lookup.
+      Value
 
-data Mapping =
-  MonomorphicMapping String Value
-    |
-  ByKeyMapping CaseSensitive (ByKey Text)
-
-data Sequence =
-  MonomorphicSequence Value
-    |
-  ByOrderSequence ByOrder
-    |
-  ByKeySequence (ByKey Int)
+data ByOrder
+  = AnyByOrder
+  | BothByOrder ByOrder ByOrder
+  | FetchByOrder Value
 
 -- *
--------------------------
-
-data String =
-  {-| Any string as it is. -}
-  AnyString
-    |
-  {-| One of options. Suitable for enumerations. -}
-  OneOfString CaseSensitive [Text] {-^ Options. -}
-    |
-  {-| Must conform to a textually described format. -}
-  FormattedString Text {-^ Description of the format. -}
-
-data ByKey key =
-  AnyByKey
-    |
-  NoByKey
-    |
-  EitherByKey (ByKey key) (ByKey key)
-    |
-  BothByKey (ByKey key) (ByKey key)
-    |
-  LookupByKey [key] {-^ Keys to lookup. -} Value
-
-data ByOrder =
-  AnyByOrder
-    |
-  BothByOrder ByOrder ByOrder
-    |
-  FetchByOrder Value
-
-
--- *
--------------------------
 
 instance Semigroup Value where
   (<>) (Value lScalars lMappings lSequences) (Value rScalars rMappings rSequences) =

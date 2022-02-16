@@ -1,17 +1,15 @@
 module YamlUnscrambler.CompactErrRendering
-(
-  renderErrAtPath,
-)
+  ( renderErrAtPath,
+  )
 where
 
-import YamlUnscrambler.Prelude hiding (intercalate)
-import YamlUnscrambler.Model
+import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
 import TextBuilderDev
 import qualified YamlUnscrambler.Err as Err
 import qualified YamlUnscrambler.Expectations as Ex
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text as Text
-
+import YamlUnscrambler.Model
+import YamlUnscrambler.Prelude hiding (intercalate)
 
 renderErrAtPath :: Err.ErrAtPath -> Text
 renderErrAtPath =
@@ -24,20 +22,22 @@ errAtPath (Err.ErrAtPath a b) =
   "Error at path " <> path a <> ". " <> reason b
 
 reason =
-  \ case
+  \case
     Err.KeyErr a b c ->
-      text c <> ". On input: " <> string (show b) <> ". " <>
-      "Expecting: " <> stringExpectation a
+      text c <> ". On input: " <> string (show b) <> ". "
+        <> "Expecting: "
+        <> stringExpectation a
     Err.NoneOfMappingKeysFoundErr a b c d ->
-      "None of keys found " <> caseSensitively b <> ": " <> string (show d) <> ". " <>
-      "Keys available: " <> string (show c)
+      "None of keys found " <> caseSensitively b <> ": " <> string (show d) <> ". "
+        <> "Keys available: "
+        <> string (show c)
     Err.NoneOfSequenceKeysFoundErr a b ->
       "None of indices found: " <> string (show b)
     Err.ScalarErr a b c d e ->
-      foldMap (\ a -> text a <> ". ") (mfilter (not . Text.null) e) <>
-      "Expecting one of the following formats: " <>
-      intercalate ", " (fmap scalarExpectation a) <>
-      foldMap (\ a -> ". Got input: " <> string (show a)) (Text.decodeUtf8' b)
+      foldMap (\a -> text a <> ". ") (mfilter (not . Text.null) e)
+        <> "Expecting one of the following formats: "
+        <> intercalate ", " (fmap scalarExpectation a)
+        <> foldMap (\a -> ". Got input: " <> string (show a)) (Text.decodeUtf8' b)
     Err.UnexpectedScalarErr a ->
       "Unexpected scalar value"
     Err.UnexpectedMappingErr a ->
@@ -47,11 +47,12 @@ reason =
     Err.UnknownAnchorErr a ->
       "Unknown anchor: " <> text a
     Err.NotEnoughElementsErr a b ->
-      "Not enough elements: " <> decimal b <> ". " <>
-      "Expecting: " <> byOrderExpectation a
+      "Not enough elements: " <> decimal b <> ". "
+        <> "Expecting: "
+        <> byOrderExpectation a
 
 scalarExpectation =
-  \ case
+  \case
     Ex.StringScalar a ->
       stringExpectation a
     Ex.NullScalar ->
@@ -80,7 +81,7 @@ scalarExpectation =
       "binary data in Base-64"
 
 stringExpectation =
-  \ case
+  \case
     Ex.AnyString ->
       "any string"
     Ex.OneOfString a b ->
@@ -92,7 +93,7 @@ byOrderExpectation =
   decimal . count 0
   where
     count !a =
-      \ case
+      \case
         Ex.AnyByOrder ->
           a
         Ex.BothByOrder b c ->
@@ -118,7 +119,7 @@ signed (Signed a) =
   bool "unsigned" "signed" a
 
 numeralSystem =
-  \ case
+  \case
     DecimalNumeralSystem ->
       "decimal"
     HexadecimalNumeralSystem ->

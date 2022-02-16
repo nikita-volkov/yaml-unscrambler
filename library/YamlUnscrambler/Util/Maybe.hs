@@ -1,8 +1,6 @@
-module YamlUnscrambler.Util.Maybe
-where
+module YamlUnscrambler.Util.Maybe where
 
 import YamlUnscrambler.Prelude hiding (lookup)
-
 
 firstNonEmpty :: Maybe a -> Maybe a -> Maybe a
 firstNonEmpty a b =

@@ -1,10 +1,8 @@
-module YamlUnscrambler.Util.ByteString
-where
+module YamlUnscrambler.Util.ByteString where
 
-import YamlUnscrambler.Prelude hiding (map, length)
 import Data.ByteString
+import YamlUnscrambler.Prelude hiding (length, map)
 import qualified YamlUnscrambler.Util.Word8 as Word8
-
 
 lowercaseInAscii =
   map Word8.lowercaseInAscii

@@ -1,19 +1,15 @@
-module YamlUnscrambler.AsciiAtto
-where
+module YamlUnscrambler.AsciiAtto where
 
-import YamlUnscrambler.Prelude
-import YamlUnscrambler.Model
-import Data.Attoparsec.ByteString.Char8
 import Attoparsec.Time.ByteString
-
+import Data.Attoparsec.ByteString.Char8
+import YamlUnscrambler.Model
+import YamlUnscrambler.Prelude
 
 integralScalar :: (Integral a, Bits a) => Signed -> NumeralSystem -> Parser a
 integralScalar (Signed isSigned) numeralSystem =
   if isSigned
-    then
-      signed numeralParser
-    else
-      numeralParser
+    then signed numeralParser
+    else numeralParser
   where
     numeralParser =
       case numeralSystem of

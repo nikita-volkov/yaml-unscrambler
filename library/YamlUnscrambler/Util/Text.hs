@@ -1,10 +1,8 @@
-module YamlUnscrambler.Util.Text
-where
+module YamlUnscrambler.Util.Text where
 
-import YamlUnscrambler.Prelude
-import qualified Data.Attoparsec.Text as Atto
 import qualified Attoparsec.Data as Atto
-
+import qualified Data.Attoparsec.Text as Atto
+import YamlUnscrambler.Prelude
 
 deshowIfPossible :: Text -> Text
 deshowIfPossible a =

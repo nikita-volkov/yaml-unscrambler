@@ -1,66 +1,72 @@
 module YamlUnscrambler
-(
-  -- * Execution
-  parseText,
-  parseByteString,
-  getExpectations,
-  -- * DSL
-  -- ** Value
-  Value,
-  value,
-  nullableValue,
-  -- *** Helpers
-  sequenceValue,
-  mappingValue,
-  scalarsValue,
-  -- ** Scalar
-  Scalar,
-  stringScalar,
-  nullScalar,
-  boolScalar,
-  scientificScalar,
-  doubleScalar,
-  rationalScalar,
-  boundedIntegerScalar,
-  unboundedIntegerScalar,
-  timestampScalar,
-  dayScalar,
-  timeScalar,
-  uuidScalar,
-  binaryScalar,
-  -- ** Mapping
-  Mapping,
-  foldMapping,
-  byKeyMapping,
-  -- ** Sequence
-  Sequence,
-  foldSequence,
-  byOrderSequence,
-  byKeySequence,
-  -- ** String
-  String,
-  textString,
-  enumString,
-  formattedString,
-  attoparsedString,
-  -- ** ByKey
-  ByKey,
-  atByKey,
-  atOneOfByKey,
-  -- ** ByOrder
-  ByOrder,
-  fetchByOrder,
-  -- * Value types
-  MaxInputSize(..),
-  Signed(..),
-  NumeralSystem(..),
-  CaseSensitive(..),
-)
+  ( -- * Execution
+    parseText,
+    parseByteString,
+    getExpectations,
+
+    -- * DSL
+
+    -- ** Value
+    Value,
+    value,
+    nullableValue,
+
+    -- *** Helpers
+    sequenceValue,
+    mappingValue,
+    scalarsValue,
+
+    -- ** Scalar
+    Scalar,
+    stringScalar,
+    nullScalar,
+    boolScalar,
+    scientificScalar,
+    doubleScalar,
+    rationalScalar,
+    boundedIntegerScalar,
+    unboundedIntegerScalar,
+    timestampScalar,
+    dayScalar,
+    timeScalar,
+    uuidScalar,
+    binaryScalar,
+
+    -- ** Mapping
+    Mapping,
+    foldMapping,
+    byKeyMapping,
+
+    -- ** Sequence
+    Sequence,
+    foldSequence,
+    byOrderSequence,
+    byKeySequence,
+
+    -- ** String
+    String,
+    textString,
+    enumString,
+    formattedString,
+    attoparsedString,
+
+    -- ** ByKey
+    ByKey,
+    atByKey,
+    atOneOfByKey,
+
+    -- ** ByOrder
+    ByOrder,
+    fetchByOrder,
+
+    -- * Value types
+    MaxInputSize (..),
+    Signed (..),
+    NumeralSystem (..),
+    CaseSensitive (..),
+  )
 where
 
-import YamlUnscrambler.Prelude hiding (String)
-import YamlUnscrambler.Model
-import qualified YamlUnscrambler.Err as Err
 import qualified Attoparsec.Time.ByteString as AsciiAtto
 import qualified Control.Foldl as Fold
 import qualified Data.Attoparsec.ByteString.Char8 as AsciiAtto
@@ -79,16 +85,17 @@ import qualified Data.Yaml.Parser as Yaml
 import qualified Text.Libyaml as Libyaml
 import qualified YamlUnscrambler.AsciiAtto as AsciiAtto
 import qualified YamlUnscrambler.CompactErrRendering as CompactErrRendering
+import qualified YamlUnscrambler.Err as Err
 import qualified YamlUnscrambler.Expectations as Ex
+import YamlUnscrambler.Model
+import YamlUnscrambler.Prelude hiding (String)
 import qualified YamlUnscrambler.Util.ByteString as ByteString
 import qualified YamlUnscrambler.Util.HashMap as HashMap
 import qualified YamlUnscrambler.Util.Text as Text
 import qualified YamlUnscrambler.Util.Vector as Vector
 import qualified YamlUnscrambler.Util.Yaml as Yaml
 
-
 -- * Execution
--------------------------
 
 parseText :: Value a -> Text -> Either Text a
 parseText value =
@@ -100,22 +107,18 @@ parseByteString (Value {..}) input =
     Yaml.RawDoc value map <- Yaml.parseByteStringToRawDoc input
     valueParser value map & first CompactErrRendering.renderErrAtPath
 
-{-|
-Get a tree of expectations, which can then be converted into
-documentation for people working with the YAML document or
-into one of the spec formats (e.g., YAML Spec, JSON Spec).
--}
+-- |
+-- Get a tree of expectations, which can then be converted into
+-- documentation for people working with the YAML document or
+-- into one of the spec formats (e.g., YAML Spec, JSON Spec).
 getExpectations :: Value a -> Ex.Value
 getExpectations =
   valueExpectation
 
-
 -- *
--------------------------
 
-data Value a =
-  Value {
-    valueExpectation :: Ex.Value,
+data Value a = Value
+  { valueExpectation :: Ex.Value,
     valueParser :: Yaml.YamlValue -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
@@ -138,8 +141,8 @@ value scalars mappings sequences =
             [] ->
               Left (Err.ErrAtPath [] (Err.UnexpectedScalarErr expectations))
             _ ->
-              runExcept (asum (fmap parse scalars)) &
-              first convErr
+              runExcept (asum (fmap parse scalars))
+                & first convErr
               where
                 parse scalar =
                   except $ first (Last . Just) $ scalarParser scalar bytes tag style
@@ -172,7 +175,6 @@ nullableValue scalars mappings sequences =
     (fmap (fmap Just) sequences)
 
 -- ** Helpers
--------------------------
 
 sequenceValue :: Sequence a -> Value a
 sequenceValue sequence =
@@ -186,71 +188,60 @@ scalarsValue :: [Scalar a] -> Value a
 scalarsValue scalars =
   value scalars Nothing Nothing
 
-
 -- *
--------------------------
 
-data Scalar a =
-  Scalar {
-    scalarExpectation :: Ex.Scalar,
+data Scalar a = Scalar
+  { scalarExpectation :: Ex.Scalar,
     scalarParser :: ByteString -> Libyaml.Tag -> Libyaml.Style -> Either Text a
   }
   deriving (Functor)
 
 bytesParsingScalar :: Ex.Scalar -> (ByteString -> Either Text a) -> Scalar a
 bytesParsingScalar expectation parser =
-  Scalar expectation (\ bytes _ _ -> parser bytes)
+  Scalar expectation (\bytes _ _ -> parser bytes)
 
 attoparsedScalar :: Ex.Scalar -> AsciiAtto.Parser a -> Scalar a
 attoparsedScalar expectation parser =
   bytesParsingScalar expectation $
-  first (const "") . AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
+    first (const "") . AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
 
 sizedScalar :: MaxInputSize -> Scalar a -> Scalar a
 sizedScalar (MaxInputSize maxInputSize) (Scalar {..}) =
-  Scalar scalarExpectation $ \ bytes tag style ->
+  Scalar scalarExpectation $ \bytes tag style ->
     if ByteString.length bytes <= maxInputSize
-      then
-        scalarParser bytes tag style
-      else
-        Left ("Input is longer then the expected maximum of " <> showAsText maxInputSize <> " bytes")
+      then scalarParser bytes tag style
+      else Left ("Input is longer then the expected maximum of " <> showAsText maxInputSize <> " bytes")
 
 stringScalar :: String a -> Scalar a
 stringScalar (String exp parse) =
   bytesParsingScalar
     (Ex.StringScalar exp)
-    (\ bytes -> first showAsText (Text.decodeUtf8' bytes) >>= parse)
+    (\bytes -> first showAsText (Text.decodeUtf8' bytes) >>= parse)
 
 nullScalar :: a -> Scalar a
 nullScalar a =
-  Scalar Ex.NullScalar $ \ bytes tag _ ->
-    if
-      tag == Libyaml.NullTag ||
-      ByteString.null bytes ||
-      bytes == "~" ||
-      ByteString.saysNullInCiAscii bytes
-      then
-        Right a
-      else
-        Left "Not null"
+  Scalar Ex.NullScalar $ \bytes tag _ ->
+    if tag == Libyaml.NullTag
+      || ByteString.null bytes
+      || bytes == "~"
+      || ByteString.saysNullInCiAscii bytes
+      then Right a
+      else Left "Not null"
 
 boolScalar :: Scalar Bool
 boolScalar =
-  bytesParsingScalar Ex.BoolScalar $ \ bytes ->
+  bytesParsingScalar Ex.BoolScalar $ \bytes ->
     if ByteString.length bytes <= 5
-      then let
-        lowercased =
-          ByteString.lowercaseInAscii bytes
-        in if elem lowercased ["y", "yes", "on", "true", "t", "1"]
-          then
-            return True
-          else if elem lowercased ["n", "no", "off", "false", "f", "0"]
-            then
-              return False
-            else
-              Left "Not a boolean"
-      else
-        Left "Not a boolean"
+      then
+        let lowercased =
+              ByteString.lowercaseInAscii bytes
+         in if elem lowercased ["y", "yes", "on", "true", "t", "1"]
+              then return True
+              else
+                if elem lowercased ["n", "no", "off", "false", "f", "0"]
+                  then return False
+                  else Left "Not a boolean"
+      else Left "Not a boolean"
 
 scientificScalar :: Scalar Scientific
 scientificScalar =
@@ -263,11 +254,10 @@ doubleScalar =
 rationalScalar :: MaxInputSize -> Scalar Rational
 rationalScalar a =
   sizedScalar a $
-  attoparsedScalar (Ex.RationalScalar a) AsciiAtto.rational
+    attoparsedScalar (Ex.RationalScalar a) AsciiAtto.rational
 
-{-|
-E.g., 'Int', 'Int64', 'Word', but not 'Integer'.
--}
+-- |
+-- E.g., 'Int', 'Int64', 'Word', but not 'Integer'.
 boundedIntegerScalar :: (Integral a, FiniteBits a) => Signed -> NumeralSystem -> Scalar a
 boundedIntegerScalar a b =
   attoparsedScalar (Ex.BoundedIntegerScalar a b) (AsciiAtto.integralScalar a b)
@@ -275,7 +265,7 @@ boundedIntegerScalar a b =
 unboundedIntegerScalar :: MaxInputSize -> Signed -> NumeralSystem -> Scalar Integer
 unboundedIntegerScalar a b c =
   sizedScalar a $
-  attoparsedScalar (Ex.UnboundedIntegerScalar a b c) (AsciiAtto.integralScalar b c)
+    attoparsedScalar (Ex.UnboundedIntegerScalar a b c) (AsciiAtto.integralScalar b c)
 
 timestampScalar :: Scalar UTCTime
 timestampScalar =
@@ -291,7 +281,7 @@ timeScalar =
 
 uuidScalar :: Scalar UUID
 uuidScalar =
-  bytesParsingScalar Ex.UuidScalar $ \ bytes ->
+  bytesParsingScalar Ex.UuidScalar $ \bytes ->
     case UUID.fromASCIIBytes bytes of
       Just uuid ->
         return uuid
@@ -300,23 +290,19 @@ uuidScalar =
 
 binaryScalar :: Scalar ByteString
 binaryScalar =
-  bytesParsingScalar Ex.Base64BinaryScalar $ \ bytes ->
-    let
-      bytesWithoutNewlines =
-        ByteString.filter (/= 10) bytes
-      in case Base64.decodeBase64 bytesWithoutNewlines of
-        Right res ->
-          return res
-        Left err ->
-          Left err
-
+  bytesParsingScalar Ex.Base64BinaryScalar $ \bytes ->
+    let bytesWithoutNewlines =
+          ByteString.filter (/= 10) bytes
+     in case Base64.decodeBase64 bytesWithoutNewlines of
+          Right res ->
+            return res
+          Left err ->
+            Left err
 
 -- *
--------------------------
 
-data Mapping a =
-  Mapping {
-    mappingExpectation :: Ex.Mapping,
+data Mapping a = Mapping
+  { mappingExpectation :: Ex.Mapping,
     mappingParser :: [(Text, Yaml.YamlValue)] -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
@@ -328,8 +314,8 @@ foldMapping zip (Fold foldStep foldInit foldExtract) key val =
     parser
   where
     parser input anchorMap =
-      foldM step foldInit input &
-      fmap foldExtract
+      foldM step foldInit input
+        & fmap foldExtract
       where
         step state (keyInput, valInput) =
           do
@@ -338,8 +324,8 @@ foldMapping zip (Fold foldStep foldInit foldExtract) key val =
             return $! foldStep state (zip parsedKey parsedVal)
           where
             keyErr =
-              Err.ErrAtPath [] .
-              Err.KeyErr (stringExpectation key) keyInput
+              Err.ErrAtPath []
+                . Err.KeyErr (stringExpectation key) keyInput
 
 byKeyMapping :: CaseSensitive -> ByKey Text a -> Mapping a
 byKeyMapping caseSensitive byKey =
@@ -352,36 +338,33 @@ byKeyMapping caseSensitive byKey =
       where
         parser =
           if coerce caseSensitive
-            then let
-              map =
-                HashMap.fromList input
-              lookup k =
-                HashMap.lookup k map
-              lookupFirst kl =
-                HashMap.lookupFirst kl map
-              in byKeyParser byKey id lookup lookupFirst
-            else let
-              map =
-                HashMap.fromList (fmap (first Text.toLower) input)
-              lookup k =
-                HashMap.lookup (Text.toLower k) map
-              lookupFirst kl =
-                HashMap.lookupFirst (fmap Text.toLower kl) map
-              in byKeyParser byKey id lookup lookupFirst
+            then
+              let map =
+                    HashMap.fromList input
+                  lookup k =
+                    HashMap.lookup k map
+                  lookupFirst kl =
+                    HashMap.lookupFirst kl map
+               in byKeyParser byKey id lookup lookupFirst
+            else
+              let map =
+                    HashMap.fromList (fmap (first Text.toLower) input)
+                  lookup k =
+                    HashMap.lookup (Text.toLower k) map
+                  lookupFirst kl =
+                    HashMap.lookupFirst (fmap Text.toLower kl) map
+               in byKeyParser byKey id lookup lookupFirst
         keysErr keys =
           Err.ErrAtPath [] $
-          Err.NoneOfMappingKeysFoundErr (byKeyExpectation byKey) caseSensitive keysAvail (toList keys)
+            Err.NoneOfMappingKeysFoundErr (byKeyExpectation byKey) caseSensitive keysAvail (toList keys)
           where
             keysAvail =
               fmap fst input
 
-
 -- *
--------------------------
 
-data Sequence a =
-  Sequence {
-    sequenceExpectation :: Ex.Sequence,
+data Sequence a = Sequence
+  { sequenceExpectation :: Ex.Sequence,
     sequenceParser :: [Yaml.YamlValue] -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
@@ -393,28 +376,28 @@ foldSequence (Fold foldStep foldInit foldExtract) value =
     parser
   where
     parser input anchorMap =
-      foldM step (0 :: Int, foldInit) input &
-      fmap (foldExtract . snd)
+      foldM step (0 :: Int, foldInit) input
+        & fmap (foldExtract . snd)
       where
         step (!index, !state) input =
-          valueParser value input anchorMap &
-          first (Err.atSegment (showAsText index)) &
-          fmap (\ a -> (succ index, foldStep state a))
+          valueParser value input anchorMap
+            & first (Err.atSegment (showAsText index))
+            & fmap (\a -> (succ index, foldStep state a))
 
 byOrderSequence :: ByOrder a -> Sequence a
 byOrderSequence (ByOrder {..}) =
   Sequence
     (Ex.ByOrderSequence byOrderExpectation)
     parser
-    where
-      parser input anchorMap =
-        runExceptT (runReaderT (evalStateT byOrderParser (0, input)) anchorMap) &
-        either Left (first mapErr)
-        where
-          mapErr =
-            \ case
-              NotEnoughElementsByOrderErr a ->
-                Err.ErrAtPath [] $
+  where
+    parser input anchorMap =
+      runExceptT (runReaderT (evalStateT byOrderParser (0, input)) anchorMap)
+        & either Left (first mapErr)
+      where
+        mapErr =
+          \case
+            NotEnoughElementsByOrderErr a ->
+              Err.ErrAtPath [] $
                 Err.NotEnoughElementsErr byOrderExpectation a
 
 byKeySequence :: ByKey Int a -> Sequence a
@@ -424,28 +407,24 @@ byKeySequence (ByKey {..}) =
     expectation =
       Ex.ByKeySequence byKeyExpectation
     parser input =
-      let
-        vector =
-          Vector.fromList input
-        lookup k =
-          vector Vector.!? k
-        lookupFirst kl =
-          Vector.lookupFirst kl vector
-        in \ anchorMap ->
-          runExceptT (byKeyParser showAsText lookup lookupFirst anchorMap) &
-          either Left (first keysErr)
+      let vector =
+            Vector.fromList input
+          lookup k =
+            vector Vector.!? k
+          lookupFirst kl =
+            Vector.lookupFirst kl vector
+       in \anchorMap ->
+            runExceptT (byKeyParser showAsText lookup lookupFirst anchorMap)
+              & either Left (first keysErr)
       where
         keysErr keys =
           Err.ErrAtPath [] $
-          Err.NoneOfSequenceKeysFoundErr byKeyExpectation (toList keys)
-
+            Err.NoneOfSequenceKeysFoundErr byKeyExpectation (toList keys)
 
 -- *
--------------------------
 
-data String a =
-  String {
-    stringExpectation :: Ex.String,
+data String a = String
+  { stringExpectation :: Ex.String,
     stringParser :: Text -> Either Text a
   }
   deriving (Functor)
@@ -463,20 +442,20 @@ enumString (CaseSensitive caseSensitive) assocList =
     {-# NOINLINE lookup #-}
     lookup =
       if length assocList > 512
-        then if caseSensitive
-          then let
-            hashMap =
-              HashMap.fromList assocList
-            in flip HashMap.lookup hashMap
-          else let
-            hashMap =
-              HashMap.fromList (fmap (first Text.toLower) assocList)
-            in flip HashMap.lookup hashMap . Text.toLower
-        else if caseSensitive
-          then
-            flip List.lookup assocList
-          else
-            flip List.lookup (fmap (first Text.toLower) assocList) . Text.toLower
+        then
+          if caseSensitive
+            then
+              let hashMap =
+                    HashMap.fromList assocList
+               in flip HashMap.lookup hashMap
+            else
+              let hashMap =
+                    HashMap.fromList (fmap (first Text.toLower) assocList)
+               in flip HashMap.lookup hashMap . Text.toLower
+        else
+          if caseSensitive
+            then flip List.lookup assocList
+            else flip List.lookup (fmap (first Text.toLower) assocList) . Text.toLower
     parser text =
       case lookup text of
         Just a -> return a
@@ -494,13 +473,10 @@ attoparsedString format parser =
     (Ex.FormattedString format)
     (first fromString . TextAtto.parseOnly parser)
 
-
 -- *
--------------------------
 
-data ByKey key a =
-  ByKey {
-    byKeyExpectation :: Ex.ByKey key,
+data ByKey key a = ByKey
+  { byKeyExpectation :: Ex.ByKey key,
     byKeyParser ::
       (key -> Text) ->
       (key -> Maybe Yaml.YamlValue) ->
@@ -516,13 +492,13 @@ instance Applicative (ByKey key) where
   (<*>) (ByKey le lp) (ByKey re rp) =
     ByKey
       (Ex.BothByKey le re)
-      (\ a b c d -> lp a b c d <*> rp a b c d)
+      (\a b c d -> lp a b c d <*> rp a b c d)
 
 instance Selective (ByKey key) where
   select (ByKey le lp) (ByKey re rp) =
     ByKey
       (Ex.BothByKey le re)
-      (\ a b c d -> select (lp a b c d) (rp a b c d))
+      (\a b c d -> select (lp a b c d) (rp a b c d))
 
 instance Alternative (ByKey key) where
   empty =
@@ -532,7 +508,7 @@ instance Alternative (ByKey key) where
   (<|>) (ByKey le lp) (ByKey re rp) =
     ByKey
       (Ex.EitherByKey le re)
-      (\ a b c d -> lp a b c d <|> rp a b c d)
+      (\a b c d -> lp a b c d <|> rp a b c d)
 
 atByKey :: key -> Value a -> ByKey key a
 atByKey key valueSpec =
@@ -543,8 +519,9 @@ atByKey key valueSpec =
     parser renderKey lookup _ env =
       case lookup key of
         Just val ->
-          lift $ first (Err.atSegment (renderKey key)) $
-          valueParser valueSpec val env
+          lift $
+            first (Err.atSegment (renderKey key)) $
+              valueParser valueSpec val env
         Nothing ->
           throwE (pure key)
 
@@ -557,22 +534,20 @@ atOneOfByKey keys valueSpec =
     parser renderKey _ lookup env =
       case lookup keys of
         Just (key, val) ->
-          lift $ first (Err.atSegment (renderKey key)) $
-          valueParser valueSpec val env
+          lift $
+            first (Err.atSegment (renderKey key)) $
+              valueParser valueSpec val env
         Nothing ->
           throwE (fromList keys)
 
-
 -- *
--------------------------
 
-data ByOrderErr =
-  NotEnoughElementsByOrderErr
-    Int
+data ByOrderErr
+  = NotEnoughElementsByOrderErr
+      Int
 
-data ByOrder a =
-  ByOrder {
-    byOrderExpectation :: Ex.ByOrder,
+data ByOrder a = ByOrder
+  { byOrderExpectation :: Ex.ByOrder,
     byOrderParser :: StateT (Int, [Yaml.YamlValue]) (ReaderT Yaml.AnchorMap (ExceptT ByOrderErr (Either Err.ErrAtPath))) a
   }
   deriving (Functor)
