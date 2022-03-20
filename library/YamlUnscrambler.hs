@@ -293,11 +293,11 @@ binaryScalar =
   bytesParsingScalar Ex.Base64BinaryScalar $ \bytes ->
     let bytesWithoutNewlines =
           ByteString.filter (/= 10) bytes
-     in case Base64.decodeBase64 bytesWithoutNewlines of
+     in case Base64.decode bytesWithoutNewlines of
           Right res ->
             return res
           Left err ->
-            Left err
+            Left $ fromString err
 
 -- *
 

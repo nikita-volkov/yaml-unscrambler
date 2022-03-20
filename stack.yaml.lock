@@ -3,17 +3,10 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages:
-- completed:
-    hackage: text-builder-dev-0.2@sha256:6f95e04d5f660858535d9edb9a45505636da8d1949e8edcc447f3043c6d51516,2705
-    pantry-tree:
-      size: 506
-      sha256: 29d9920aa4729d9f5042ced8a0e0b388b835aa94cf7be1df0c2572dc1c2c7893
-  original:
-    hackage: text-builder-dev-0.2
+packages: []
 snapshots:
 - completed:
-    size: 608667
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/2/16.yaml
-    sha256: 84b803d5d1e8a364b5aa65386a40650d8b2a1df97cb23d51acd82f5d790f69df
-  original: nightly-2022-02-16
+    size: 504966
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/3/19.yaml
+    sha256: d2c959242638e9f148b0c7323884f1503e00165c4a6fe137873144be246a0c65
+  original: nightly-2022-03-19
