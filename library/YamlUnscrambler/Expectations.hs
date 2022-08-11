@@ -7,7 +7,7 @@ module YamlUnscrambler.Expectations
     ByKey (..),
     ByOrder (..),
 
-    -- *
+    -- * --
     MaxInputSize (..),
     Signed (..),
     NumeralSystem (..),
@@ -19,7 +19,7 @@ import YamlUnscrambler.Model
 import YamlUnscrambler.Prelude hiding (String)
 import qualified YamlUnscrambler.Util.Maybe as Maybe
 
--- *
+-- * --
 
 data Value
   = Value
@@ -51,7 +51,7 @@ data Sequence
   | ByOrderSequence ByOrder
   | ByKeySequence (ByKey Int)
 
--- *
+-- * --
 
 data String
   = -- | Any string as it is.
@@ -81,7 +81,7 @@ data ByOrder
   | BothByOrder ByOrder ByOrder
   | FetchByOrder Value
 
--- *
+-- * --
 
 instance Semigroup Value where
   (<>) (Value lScalars lMappings lSequences) (Value rScalars rMappings rSequences) =

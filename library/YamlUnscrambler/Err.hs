@@ -3,7 +3,7 @@ module YamlUnscrambler.Err
     Err (..),
     atSegment,
 
-    -- *
+    -- * --
     MaxInputSize (..),
     Signed (..),
     NumeralSystem (..),

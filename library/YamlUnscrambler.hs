@@ -115,7 +115,7 @@ getExpectations :: Value a -> Ex.Value
 getExpectations =
   valueExpectation
 
--- *
+-- * --
 
 data Value a = Value
   { valueExpectation :: Ex.Value,
@@ -188,7 +188,7 @@ scalarsValue :: [Scalar a] -> Value a
 scalarsValue scalars =
   value scalars Nothing Nothing
 
--- *
+-- * --
 
 data Scalar a = Scalar
   { scalarExpectation :: Ex.Scalar,
@@ -299,7 +299,7 @@ binaryScalar =
           Left err ->
             Left $ fromString err
 
--- *
+-- * --
 
 data Mapping a = Mapping
   { mappingExpectation :: Ex.Mapping,
@@ -361,7 +361,7 @@ byKeyMapping caseSensitive byKey =
             keysAvail =
               fmap fst input
 
--- *
+-- * --
 
 data Sequence a = Sequence
   { sequenceExpectation :: Ex.Sequence,
@@ -421,7 +421,7 @@ byKeySequence (ByKey {..}) =
           Err.ErrAtPath [] $
             Err.NoneOfSequenceKeysFoundErr byKeyExpectation (toList keys)
 
--- *
+-- * --
 
 data String a = String
   { stringExpectation :: Ex.String,
@@ -473,7 +473,7 @@ attoparsedString format parser =
     (Ex.FormattedString format)
     (first fromString . TextAtto.parseOnly parser)
 
--- *
+-- * --
 
 data ByKey key a = ByKey
   { byKeyExpectation :: Ex.ByKey key,
@@ -540,7 +540,7 @@ atOneOfByKey keys valueSpec =
         Nothing ->
           throwE (fromList keys)
 
--- *
+-- * --
 
 data ByOrderErr
   = NotEnoughElementsByOrderErr
