@@ -9,7 +9,7 @@ import YamlUnscrambler.Prelude
 
 parseByteStringToRawDoc :: ByteString -> Either Text YamlParser.RawDoc
 parseByteStringToRawDoc input =
-  first showAsText $
+  first (mappend "YAML AST parsing: " . showAsText) $
     unsafePerformIO $
       try @SomeException $
         Conduit.runConduitRes $
