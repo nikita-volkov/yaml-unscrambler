@@ -3,7 +3,7 @@ module Main where
 import qualified Control.Foldl as Fold
 import qualified Data.Text as Text
 import qualified NeatInterpolation as NeatInterpolation
-import Test.QuickCheck.Instances()
+import Test.QuickCheck.Instances ()
 import Test.Tasty
 import Test.Tasty.HUnit
 import qualified YamlUnscrambler as U
