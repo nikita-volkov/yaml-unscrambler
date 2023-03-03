@@ -24,11 +24,18 @@ errAtPath (Err.ErrAtPath a b) =
 reason =
   \case
     Err.KeyErr a b c ->
-      text c <> ". On input: " <> string (show b) <> ". "
+      text c
+        <> ". On input: "
+        <> string (show b)
+        <> ". "
         <> "Expecting: "
         <> stringExpectation a
     Err.NoneOfMappingKeysFoundErr a b c d ->
-      "None of keys found " <> caseSensitively b <> ": " <> string (show d) <> ". "
+      "None of keys found "
+        <> caseSensitively b
+        <> ": "
+        <> string (show d)
+        <> ". "
         <> "Keys available: "
         <> string (show c)
     Err.NoneOfSequenceKeysFoundErr a b ->
@@ -47,7 +54,9 @@ reason =
     Err.UnknownAnchorErr a ->
       "Unknown anchor: " <> text a
     Err.NotEnoughElementsErr a b ->
-      "Not enough elements: " <> decimal b <> ". "
+      "Not enough elements: "
+        <> decimal b
+        <> ". "
         <> "Expecting: "
         <> byOrderExpectation a
 
