@@ -1,8 +1,8 @@
 module YamlUnscrambler.Util.Yaml where
 
-import Conduit qualified
-import Data.Yaml.Parser qualified as YamlParser
-import Text.Libyaml qualified as Libyaml
+import qualified Conduit
+import qualified Data.Yaml.Parser as YamlParser
+import qualified Text.Libyaml as Libyaml
 import YamlUnscrambler.Prelude
 
 parseByteStringToRawDoc :: ByteString -> Either Text YamlParser.RawDoc

@@ -15,8 +15,8 @@ module YamlUnscrambler.Err
   )
 where
 
-import Text.Libyaml qualified as Libyaml
-import YamlUnscrambler.Expectations qualified as Ex
+import qualified Text.Libyaml as Libyaml
+import qualified YamlUnscrambler.Expectations as Ex
 import YamlUnscrambler.Model
 import YamlUnscrambler.Prelude hiding (String)
 

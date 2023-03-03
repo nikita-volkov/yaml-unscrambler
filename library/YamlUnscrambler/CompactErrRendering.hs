@@ -3,11 +3,11 @@ module YamlUnscrambler.CompactErrRendering
   )
 where
 
-import Data.Text qualified as Text
-import Data.Text.Encoding qualified as Text
+import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
 import TextBuilderDev
-import YamlUnscrambler.Err qualified as Err
-import YamlUnscrambler.Expectations qualified as Ex
+import qualified YamlUnscrambler.Err as Err
+import qualified YamlUnscrambler.Expectations as Ex
 import YamlUnscrambler.Model
 import YamlUnscrambler.Prelude hiding (intercalate)
 
