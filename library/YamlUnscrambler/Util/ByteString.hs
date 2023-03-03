@@ -2,7 +2,7 @@ module YamlUnscrambler.Util.ByteString where
 
 import Data.ByteString
 import YamlUnscrambler.Prelude hiding (length, map)
-import YamlUnscrambler.Util.Word8 qualified as Word8
+import qualified YamlUnscrambler.Util.Word8 as Word8
 
 lowercaseInAscii :: ByteString -> ByteString
 lowercaseInAscii =

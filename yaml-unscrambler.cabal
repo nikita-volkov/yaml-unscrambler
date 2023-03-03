@@ -34,7 +34,6 @@ common base
     FunctionalDependencies
     GADTs
     GeneralizedNewtypeDeriving
-    ImportQualifiedPost
     InstanceSigs
     LambdaCase
     LiberalTypeSynonyms

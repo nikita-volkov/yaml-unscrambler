@@ -1,12 +1,12 @@
 module Main where
 
-import Control.Foldl qualified as Fold
-import Data.Text qualified as Text
-import NeatInterpolation qualified as NeatInterpolation
-import Test.QuickCheck.Instances ()
+import qualified Control.Foldl as Fold
+import qualified Data.Text as Text
+import qualified NeatInterpolation as NeatInterpolation
+import Test.QuickCheck.Instances()
 import Test.Tasty
 import Test.Tasty.HUnit
-import YamlUnscrambler qualified as U
+import qualified YamlUnscrambler as U
 import Prelude hiding (assert)
 
 main :: IO ()

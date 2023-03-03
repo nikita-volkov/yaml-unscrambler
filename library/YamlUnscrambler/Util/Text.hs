@@ -1,7 +1,7 @@
 module YamlUnscrambler.Util.Text where
 
-import Attoparsec.Data qualified as Atto
-import Data.Attoparsec.Text qualified as Atto
+import qualified Attoparsec.Data as Atto
+import qualified Data.Attoparsec.Text as Atto
 import YamlUnscrambler.Prelude
 
 deshowIfPossible :: Text -> Text
