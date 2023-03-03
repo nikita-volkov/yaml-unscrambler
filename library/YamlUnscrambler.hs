@@ -69,6 +69,7 @@ where
 
 import qualified Attoparsec.Time.ByteString as AsciiAtto
 import qualified Control.Foldl as Fold
+import qualified Control.Selective.Trans.Except as Selective.ExceptT
 import qualified Data.Attoparsec.ByteString.Char8 as AsciiAtto
 import qualified Data.Attoparsec.Text as TextAtto
 import qualified Data.ByteString as ByteString
@@ -498,7 +499,7 @@ instance Selective (ByKey key) where
   select (ByKey le lp) (ByKey re rp) =
     ByKey
       (Ex.BothByKey le re)
-      (\a b c d -> select (lp a b c d) (rp a b c d))
+      (\a b c d -> Selective.ExceptT.unwrap (select (Selective.ExceptT.ExceptT (lp a b c d)) (Selective.ExceptT.ExceptT (rp a b c d))))
 
 instance Alternative (ByKey key) where
   empty =
