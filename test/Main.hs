@@ -30,12 +30,12 @@ main =
                             fmap Just $ U.boundedIntegerScalar @Int (U.Signed True) U.DecimalNumeralSystem
               input =
                 [NeatInterpolation.text|
-          a: 2
-          b: 3
-          c:
-            - 1
-            - 2
-          |]
+                  a: 2
+                  b: 3
+                  c:
+                    - 1
+                    - 2
+                |]
            in case U.parseText unscrambler input of
                 Right res ->
                   assertFailure (show res)
@@ -67,13 +67,13 @@ main =
                         fmap Just $ U.boundedIntegerScalar @Int (U.Signed True) U.DecimalNumeralSystem
               input =
                 [NeatInterpolation.text|
-          sums:
-            A:
-              a:
-                - Int
-                - Bool
-              b: Char, Double
-          |]
+                  sums:
+                    A:
+                      a:
+                        - Int
+                        - Bool
+                      b: Char, Double
+                |]
            in case U.parseText unscrambler input of
                 Right res ->
                   assertFailure (show res)
@@ -105,11 +105,11 @@ main =
                         fmap Just $ U.stringScalar U.textString
               input =
                 [NeatInterpolation.text|
-          sums:
-            A:
-              a: Text
-              b: Int
-          |]
+                  sums:
+                    A:
+                      a: Text
+                      b: Int
+                |]
            in case U.parseText unscrambler input of
                 Right res ->
                   assertEqual "" (Just [("A", [("a", Just "Text"), ("b", Just "Int")])]) res
@@ -141,11 +141,11 @@ main =
                         fmap Just $ U.boundedIntegerScalar @Int (U.Signed True) U.DecimalNumeralSystem
               input =
                 [NeatInterpolation.text|
-          sums:
-            A:
-              a: Int
-              b: Char
-          |]
+                  sums:
+                    A:
+                      a: Int
+                      b: Char
+                |]
            in case U.parseText unscrambler input of
                 Right res ->
                   assertFailure (show res)
