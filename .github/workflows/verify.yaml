@@ -1,9 +1,11 @@
 name: Compile, test and check the docs
 
 on:
-  - push
-  - pull_request
-  - workflow_call
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_call:
 
 jobs:
 
