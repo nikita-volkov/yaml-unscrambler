@@ -67,10 +67,5 @@ jobs:
       - name: Test
         run: cabal test --test-show-details always
 
-      - name: Benchmark
-        run: |
-          cabal clean
-          cabal bench -O2
-
       - name: Run Haddock
         run: cabal haddock
