@@ -17,7 +17,7 @@ where
 
 import YamlUnscrambler.Model
 import YamlUnscrambler.Prelude hiding (String)
-import qualified YamlUnscrambler.Util.Maybe as Maybe
+import YamlUnscrambler.Util.Maybe qualified as Maybe
 
 -- * --
 

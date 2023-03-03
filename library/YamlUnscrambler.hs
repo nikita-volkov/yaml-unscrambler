@@ -67,31 +67,31 @@ module YamlUnscrambler
   )
 where
 
-import qualified Attoparsec.Time.ByteString as AsciiAtto
-import qualified Control.Selective.Trans.Except as Selective.ExceptT
-import qualified Data.Attoparsec.ByteString.Char8 as AsciiAtto
-import qualified Data.Attoparsec.Text as TextAtto
-import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Base64 as Base64
-import qualified Data.HashMap.Strict as HashMap
-import qualified Data.List as List
-import qualified Data.Map.Strict as Map
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Data.UUID as UUID
-import qualified Data.Vector as Vector
-import qualified Data.Yaml.Parser as Yaml
-import qualified Text.Libyaml as Libyaml
-import qualified YamlUnscrambler.AsciiAtto as AsciiAtto
-import qualified YamlUnscrambler.CompactErrRendering as CompactErrRendering
-import qualified YamlUnscrambler.Err as Err
-import qualified YamlUnscrambler.Expectations as Ex
+import Attoparsec.Time.ByteString qualified as AsciiAtto
+import Control.Selective.Trans.Except qualified as Selective.ExceptT
+import Data.Attoparsec.ByteString.Char8 qualified as AsciiAtto
+import Data.Attoparsec.Text qualified as TextAtto
+import Data.ByteString qualified as ByteString
+import Data.ByteString.Base64 qualified as Base64
+import Data.HashMap.Strict qualified as HashMap
+import Data.List qualified as List
+import Data.Map.Strict qualified as Map
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.UUID qualified as UUID
+import Data.Vector qualified as Vector
+import Data.Yaml.Parser qualified as Yaml
+import Text.Libyaml qualified as Libyaml
+import YamlUnscrambler.AsciiAtto qualified as AsciiAtto
+import YamlUnscrambler.CompactErrRendering qualified as CompactErrRendering
+import YamlUnscrambler.Err qualified as Err
+import YamlUnscrambler.Expectations qualified as Ex
 import YamlUnscrambler.Model
 import YamlUnscrambler.Prelude hiding (String)
-import qualified YamlUnscrambler.Util.ByteString as ByteString
-import qualified YamlUnscrambler.Util.HashMap as HashMap
-import qualified YamlUnscrambler.Util.Vector as Vector
-import qualified YamlUnscrambler.Util.Yaml as Yaml
+import YamlUnscrambler.Util.ByteString qualified as ByteString
+import YamlUnscrambler.Util.HashMap qualified as HashMap
+import YamlUnscrambler.Util.Vector qualified as Vector
+import YamlUnscrambler.Util.Yaml qualified as Yaml
 
 -- * Execution
 
