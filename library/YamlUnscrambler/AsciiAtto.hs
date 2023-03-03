@@ -1,6 +1,5 @@
 module YamlUnscrambler.AsciiAtto where
 
-import Attoparsec.Time.ByteString
 import Data.Attoparsec.ByteString.Char8
 import YamlUnscrambler.Model
 import YamlUnscrambler.Prelude

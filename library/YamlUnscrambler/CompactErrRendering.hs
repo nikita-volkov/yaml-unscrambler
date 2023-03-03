@@ -15,12 +15,15 @@ renderErrAtPath :: Err.ErrAtPath -> Text
 renderErrAtPath =
   buildText . errAtPath
 
+path :: [Text] -> TextBuilder
 path a =
   "/" <> intercalate "/" (fmap text a)
 
+errAtPath :: Err.ErrAtPath -> TextBuilder
 errAtPath (Err.ErrAtPath a b) =
   "Error at path " <> path a <> ". " <> reason b
 
+reason :: Err.Err -> TextBuilder
 reason =
   \case
     Err.KeyErr a b c ->
@@ -60,6 +63,7 @@ reason =
         <> "Expecting: "
         <> byOrderExpectation a
 
+scalarExpectation :: Ex.Scalar -> TextBuilder
 scalarExpectation =
   \case
     Ex.StringScalar a ->
@@ -89,6 +93,7 @@ scalarExpectation =
     Ex.Base64BinaryScalar ->
       "binary data in Base-64"
 
+stringExpectation :: Ex.String -> TextBuilder
 stringExpectation =
   \case
     Ex.AnyString ->
@@ -98,8 +103,9 @@ stringExpectation =
     Ex.FormattedString a ->
       text a
 
+byOrderExpectation :: Ex.ByOrder -> TextBuilder
 byOrderExpectation =
-  decimal . count 0
+  decimal @Integer . count 0
   where
     count !a =
       \case
@@ -118,15 +124,19 @@ byOrderExpectation =
         Ex.FetchByOrder _ ->
           count (succ a) c
 
+caseSensitive :: CaseSensitive -> TextBuilder
 caseSensitive (CaseSensitive a) =
   "case-" <> bool "insensitive" "sensitive" a
 
+caseSensitively :: CaseSensitive -> TextBuilder
 caseSensitively (CaseSensitive a) =
   "case-" <> bool "insensitively" "sensitively" a
 
+signed :: Signed -> TextBuilder
 signed (Signed a) =
   bool "unsigned" "signed" a
 
+numeralSystem :: NumeralSystem -> TextBuilder
 numeralSystem =
   \case
     DecimalNumeralSystem ->
@@ -134,5 +144,6 @@ numeralSystem =
     HexadecimalNumeralSystem ->
       "hexadecimal"
 
+maxInputSize :: MaxInputSize -> TextBuilder
 maxInputSize (MaxInputSize a) =
   decimal a

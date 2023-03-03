@@ -1,8 +1,6 @@
 module YamlUnscrambler.Util.Yaml where
 
 import qualified Conduit
-import qualified Data.Text.Encoding as Text
-import qualified Data.Yaml as Yaml
 import qualified Data.Yaml.Parser as YamlParser
 import qualified Text.Libyaml as Libyaml
 import YamlUnscrambler.Prelude

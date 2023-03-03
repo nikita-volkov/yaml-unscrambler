@@ -2,17 +2,14 @@ module Main where
 
 import qualified Control.Foldl as Fold
 import qualified Data.Text as Text
-import GHC.Exts (fromList)
 import qualified NeatInterpolation as NeatInterpolation
-import qualified Test.QuickCheck as QuickCheck
-import Test.QuickCheck.Instances
+import Test.QuickCheck.Instances()
 import Test.Tasty
 import Test.Tasty.HUnit
-import Test.Tasty.QuickCheck
-import Test.Tasty.Runners
 import qualified YamlUnscrambler as U
 import Prelude hiding (assert)
 
+main :: IO ()
 main =
   defaultMain $
     testGroup

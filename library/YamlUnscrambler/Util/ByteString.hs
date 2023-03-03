@@ -4,6 +4,7 @@ import Data.ByteString
 import YamlUnscrambler.Prelude hiding (length, map)
 import qualified YamlUnscrambler.Util.Word8 as Word8
 
+lowercaseInAscii :: ByteString -> ByteString
 lowercaseInAscii =
   map Word8.lowercaseInAscii
 

@@ -10,7 +10,7 @@ test:
 	cabal test --builddir dist/test --enable-tests --disable-optimisation --test-show-details always -j +RTS -A128m -n2m -N -RTS
 
 master:
-	cabal build --builddir dist/master --enable-tests --enable-benchmarks -j +RTS -A128m -n2m -N -RTS --ghc-options="-Werror -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates -Wredundant-constraints -Wunused-packages -Wno-name-shadowing"
+	cabal build --builddir dist/master --enable-tests --enable-benchmarks -j +RTS -A128m -n2m -N -RTS --ghc-options="-Werror -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates -Wredundant-constraints -Wunused-packages -Wno-name-shadowing -Wno-unused-matches"
 
 bench:
 	cabal bench --builddir dist/bench -j +RTS -A128m -n2m -N -RTS
