@@ -3,6 +3,7 @@ name: Release the lib to Hackage
 on:
   push:
     branches:
+      - supermajor
       - major
       - minor
       - patch
@@ -24,45 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Bump package version
-        uses: nikita-volkov/edit-cabal-version.github-action@v1.1.1
+      - name: Release
+        uses: nikita-volkov/release-haskell-package.github-action@97a028463f180225b24a7f8ba416ac4888cfe912
         with:
-          mode: bump
-          bump-place: ${{ fromJSON('{"major":1,"minor":2,"patch":3}')[github.ref_name] }}
-        id: bump-cabal-version
-
-      - name: Ensure no according tag exists
-        uses: nikita-volkov/fail-if-tag-exists.github-action@v1.0.0
-        with:
-          tag: ${{ steps.bump-cabal-version.outputs.after }}
-
-      - name: Publish on Hackage
-        uses: nikita-volkov/publish-to-hackage.github-action@v2.0.0
-        with:
-          token: ${{ secrets.HACKAGE_AUTH_TOKEN }}
-          publish: true
-
-      - name: Commit the version update
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Set package version to ${{ steps.bump-cabal-version.outputs.after }}
-          file_pattern: |
-            *.cabal
-        id: commit
-
-      - name: Tag
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ steps.bump-cabal-version.outputs.after }}
-          tag_prefix:
-          commit_sha: ${{ steps.commit.outputs.commit_hash }}
-
-      - name: Merge to master
-        uses: devmasx/merge-branch@1.4.0
-        with:
-          type: now
-          from_branch: ${{ github.ref_name }}
-          target_branch: master
-          github_token: ${{ github.token }}
-          message: Set package version to ${{ steps.bump-cabal-version.outputs.after }}
+          hackage-token: ${{ secrets.HACKAGE_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version-bump-place: ${{ fromJSON('{"supermajor":0,"major":1,"minor":2,"patch":3}')[github.ref_name] }}
+          main-branch: master
+          prefix-tag-with-v: false
