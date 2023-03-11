@@ -9,18 +9,18 @@ on:
       - patch
 
 concurrency:
-  group: release
+  group: cd
   cancel-in-progress: false
 
 jobs:
 
-  verify:
-    uses: ./.github/workflows/verify.yaml
+  ci:
+    uses: ./.github/workflows/ci.yaml
     secrets: inherit
 
-  release:
+  cd:
     needs:
-      - verify
+      - ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
