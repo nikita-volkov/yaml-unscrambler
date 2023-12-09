@@ -25,33 +25,33 @@ data ErrAtPath
 
 data Err
   = KeyErr
+      -- | Key expectation.
       Ex.String
-      -- ^ Key expectation.
+      -- | Key input.
       Text
-      -- ^ Key input.
+      -- | String parsing error.
       Text
-      -- ^ String parsing error.
   | NoneOfMappingKeysFoundErr
       (Ex.ByKey Text)
       CaseSensitive
+      -- | Available keys.
       [Text]
-      -- ^ Available keys.
+      -- | Keys looked up.
       [Text]
-      -- ^ Keys looked up.
   | NoneOfSequenceKeysFoundErr
       (Ex.ByKey Int)
       [Int]
   | ScalarErr
+      -- | Expected formats.
       [Ex.Scalar]
-      -- ^ Expected formats.
+      -- | Input.
       ByteString
-      -- ^ Input.
+      -- | Tag.
       Libyaml.Tag
-      -- ^ Tag.
+      -- | Style.
       Libyaml.Style
-      -- ^ Style.
+      -- | Last error.
       (Maybe Text)
-      -- ^ Last error.
   | UnexpectedScalarErr
       Ex.Value
   | UnexpectedMappingErr
