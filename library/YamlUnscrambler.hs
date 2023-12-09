@@ -115,12 +115,14 @@ getExpectations =
 
 -- * --
 
+-- | Parser of any kind of YAML value: scalar, mapping or sequence.
 data Value a = Value
   { valueExpectation :: Ex.Value,
     valueParser :: Yaml.YamlValue -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
 
+-- | Specification of various alternative ways of parsing a non-nullable value.
 value :: [Scalar a] -> Maybe (Mapping a) -> Maybe (Sequence a) -> Value a
 value scalars mappings sequences =
   Value expectations parse
@@ -165,6 +167,7 @@ value scalars mappings sequences =
             Nothing ->
               Left (Err.ErrAtPath [] (Err.UnknownAnchorErr (fromString anchorName)))
 
+-- | Specification of various alternative ways of parsing a nullable value.
 nullableValue :: [Scalar a] -> Maybe (Mapping a) -> Maybe (Sequence a) -> Value (Maybe a)
 nullableValue scalars mappings sequences =
   value
@@ -174,35 +177,43 @@ nullableValue scalars mappings sequences =
 
 -- ** Helpers
 
+-- | Value parser, which only expects sequence values.
 sequenceValue :: Sequence a -> Value a
 sequenceValue sequence =
   value [] Nothing (Just sequence)
 
+-- | Value parser, which only expects mapping values.
 mappingValue :: Mapping a -> Value a
 mappingValue mapping =
   value [] (Just mapping) Nothing
 
+-- | Value parser, which only expects scalar values.
 scalarsValue :: [Scalar a] -> Value a
 scalarsValue scalars =
   value scalars Nothing Nothing
 
 -- * --
 
+-- | Scalar value parser.
 data Scalar a = Scalar
   { scalarExpectation :: Ex.Scalar,
     scalarParser :: ByteString -> Libyaml.Tag -> Libyaml.Style -> Either Text a
   }
   deriving (Functor)
 
+-- | Custom parser function of a strict bytestring as a scalar value.
 bytesParsingScalar :: Ex.Scalar -> (ByteString -> Either Text a) -> Scalar a
 bytesParsingScalar expectation parser =
   Scalar expectation (\bytes _ _ -> parser bytes)
 
+-- | Custom ASCII attoparsec parser of a scalar value.
 attoparsedScalar :: Ex.Scalar -> AsciiAtto.Parser a -> Scalar a
 attoparsedScalar expectation parser =
-  bytesParsingScalar expectation $
-    first (const "") . AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
+  bytesParsingScalar expectation
+    $ first (const "")
+    . AsciiAtto.parseOnly (parser <* AsciiAtto.endOfInput)
 
+-- | Add protection on the maximum allowed input size over a scalar parser.
 sizedScalar :: MaxInputSize -> Scalar a -> Scalar a
 sizedScalar (MaxInputSize maxInputSize) (Scalar {..}) =
   Scalar scalarExpectation $ \bytes tag style ->
@@ -210,22 +221,27 @@ sizedScalar (MaxInputSize maxInputSize) (Scalar {..}) =
       then scalarParser bytes tag style
       else Left ("Input is longer then the expected maximum of " <> showAsText maxInputSize <> " bytes")
 
+-- | String scalar parser.
 stringScalar :: String a -> Scalar a
 stringScalar (String exp parse) =
   bytesParsingScalar
     (Ex.StringScalar exp)
     (\bytes -> first showAsText (Text.decodeUtf8' bytes) >>= parse)
 
+-- | A parser expecting a null value and resulting in the provided constant value when successful.
 nullScalar :: a -> Scalar a
 nullScalar a =
   Scalar Ex.NullScalar $ \bytes tag _ ->
-    if tag == Libyaml.NullTag
+    if tag
+      == Libyaml.NullTag
       || ByteString.null bytes
-      || bytes == "~"
+      || bytes
+      == "~"
       || ByteString.saysNullInCiAscii bytes
       then Right a
       else Left "Not null"
 
+-- | Boolean scalar parser.
 boolScalar :: Scalar Bool
 boolScalar =
   bytesParsingScalar Ex.BoolScalar $ \bytes ->
@@ -241,42 +257,52 @@ boolScalar =
                   else Left "Not a boolean"
       else Left "Not a boolean"
 
+-- | Numeric scalar as scientific parser.
 scientificScalar :: Scalar Scientific
 scientificScalar =
   attoparsedScalar Ex.ScientificScalar AsciiAtto.scientific
 
+-- | Numeric scalar as double parser.
 doubleScalar :: Scalar Double
 doubleScalar =
   attoparsedScalar Ex.DoubleScalar AsciiAtto.double
 
+-- | Numeric scalar as rational parser protected with maximum allowed input size.
 rationalScalar :: MaxInputSize -> Scalar Rational
 rationalScalar a =
-  sizedScalar a $
-    attoparsedScalar (Ex.RationalScalar a) AsciiAtto.rational
+  sizedScalar a
+    $ attoparsedScalar (Ex.RationalScalar a) AsciiAtto.rational
 
 -- |
+-- Numeric scalar parser into a bounded integer value.
 -- E.g., 'Int', 'Int64', 'Word', but not 'Integer'.
 boundedIntegerScalar :: (Integral a, FiniteBits a) => Signed -> NumeralSystem -> Scalar a
 boundedIntegerScalar a b =
   attoparsedScalar (Ex.BoundedIntegerScalar a b) (AsciiAtto.integralScalar a b)
 
+-- |
+-- Numeric scalar parser into any integer value.
 unboundedIntegerScalar :: MaxInputSize -> Signed -> NumeralSystem -> Scalar Integer
 unboundedIntegerScalar a b c =
-  sizedScalar a $
-    attoparsedScalar (Ex.UnboundedIntegerScalar a b c) (AsciiAtto.integralScalar b c)
+  sizedScalar a
+    $ attoparsedScalar (Ex.UnboundedIntegerScalar a b c) (AsciiAtto.integralScalar b c)
 
+-- | String scalar parser as 'UTCTime' in ISO-8601.
 timestampScalar :: Scalar UTCTime
 timestampScalar =
   attoparsedScalar Ex.Iso8601TimestampScalar AsciiAtto.utcTimeInISO8601
 
+-- | String scalar parser as 'Day' in ISO-8601.
 dayScalar :: Scalar Day
 dayScalar =
   attoparsedScalar Ex.Iso8601DayScalar AsciiAtto.dayInISO8601
 
+-- | String scalar parser as 'TimeOfDay' in ISO-8601.
 timeScalar :: Scalar TimeOfDay
 timeScalar =
   attoparsedScalar Ex.Iso8601TimeScalar AsciiAtto.timeOfDayInISO8601
 
+-- | String scalar parser as 'UUID'.
 uuidScalar :: Scalar UUID
 uuidScalar =
   bytesParsingScalar Ex.UuidScalar $ \bytes ->
@@ -286,6 +312,7 @@ uuidScalar =
       Nothing ->
         Left "Invalid UUID"
 
+-- | String scalar parser as binary data encoded in Base-64.
 binaryScalar :: Scalar ByteString
 binaryScalar =
   bytesParsingScalar Ex.Base64BinaryScalar $ \bytes ->
@@ -299,12 +326,14 @@ binaryScalar =
 
 -- * --
 
+-- | Mapping value parser.
 data Mapping a = Mapping
   { mappingExpectation :: Ex.Mapping,
     mappingParser :: [(Text, Yaml.YamlValue)] -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
 
+-- | Mapping parser which folds pairs into some final data-structure.
 foldMapping :: (key -> val -> assoc) -> Fold assoc a -> String key -> Value val -> Mapping a
 foldMapping zip (Fold foldStep foldInit foldExtract) key val =
   Mapping
@@ -325,6 +354,7 @@ foldMapping zip (Fold foldStep foldInit foldExtract) key val =
               Err.ErrAtPath []
                 . Err.KeyErr (stringExpectation key) keyInput
 
+-- | Mapping parser which allows the user to look up fields and process them with individual parsers.
 byKeyMapping :: CaseSensitive -> ByKey Text a -> Mapping a
 byKeyMapping caseSensitive byKey =
   Mapping expectation parser
@@ -353,20 +383,22 @@ byKeyMapping caseSensitive byKey =
                     HashMap.lookupFirst (fmap Text.toLower kl) map
                in byKeyParser byKey id lookup lookupFirst
         keysErr keys =
-          Err.ErrAtPath [] $
-            Err.NoneOfMappingKeysFoundErr (byKeyExpectation byKey) caseSensitive keysAvail (toList keys)
+          Err.ErrAtPath []
+            $ Err.NoneOfMappingKeysFoundErr (byKeyExpectation byKey) caseSensitive keysAvail (toList keys)
           where
             keysAvail =
               fmap fst input
 
 -- * --
 
+-- | Sequence value parser.
 data Sequence a = Sequence
   { sequenceExpectation :: Ex.Sequence,
     sequenceParser :: [Yaml.YamlValue] -> Yaml.AnchorMap -> Either Err.ErrAtPath a
   }
   deriving (Functor)
 
+-- | Homogenous sequence parser which folds into a final data-structure.
 foldSequence :: Fold a b -> Value a -> Sequence b
 foldSequence (Fold foldStep foldInit foldExtract) value =
   Sequence
@@ -382,6 +414,7 @@ foldSequence (Fold foldStep foldInit foldExtract) value =
             & first (Err.atSegment (showAsText index))
             & fmap (\a -> (succ index, foldStep state a))
 
+-- | Heterogenous sequence parser by order in the sequence, which lets you apply individual parsers to elements.
 byOrderSequence :: ByOrder a -> Sequence a
 byOrderSequence (ByOrder {..}) =
   Sequence
@@ -395,9 +428,10 @@ byOrderSequence (ByOrder {..}) =
         mapErr =
           \case
             NotEnoughElementsByOrderErr a ->
-              Err.ErrAtPath [] $
-                Err.NotEnoughElementsErr byOrderExpectation a
+              Err.ErrAtPath []
+                $ Err.NotEnoughElementsErr byOrderExpectation a
 
+-- | Heterogenous sequence parser by index in the sequence, which lets you apply individual parsers to elements.
 byKeySequence :: ByKey Int a -> Sequence a
 byKeySequence (ByKey {..}) =
   Sequence expectation parser
@@ -416,21 +450,24 @@ byKeySequence (ByKey {..}) =
               & either Left (first keysErr)
       where
         keysErr keys =
-          Err.ErrAtPath [] $
-            Err.NoneOfSequenceKeysFoundErr byKeyExpectation (toList keys)
+          Err.ErrAtPath []
+            $ Err.NoneOfSequenceKeysFoundErr byKeyExpectation (toList keys)
 
 -- * --
 
+-- | String value parser applicable to string scalars and mapping keys.
 data String a = String
   { stringExpectation :: Ex.String,
     stringParser :: Text -> Either Text a
   }
   deriving (Functor)
 
+-- | String as is.
 textString :: String Text
 textString =
   String Ex.AnyString return
 
+-- | Look the string up as a key in the provided dictionary.
 enumString :: CaseSensitive -> [(Text, a)] -> String a
 enumString (CaseSensitive caseSensitive) assocList =
   String expectation parser
@@ -459,13 +496,23 @@ enumString (CaseSensitive caseSensitive) assocList =
         Just a -> return a
         _ -> Left "Unexpected value"
 
-formattedString :: Text -> (Text -> Either Text a) -> String a
+-- | String parsed using the provided function.
+formattedString ::
+  -- | Format name for documentation and expectations.
+  Text ->
+  (Text -> Either Text a) ->
+  String a
 formattedString format parser =
   String
     (Ex.FormattedString format)
     parser
 
-attoparsedString :: Text -> TextAtto.Parser a -> String a
+-- | String parsed using the provided textual attoparsec parser.
+attoparsedString ::
+  -- | Format name for documentation and expectations.
+  Text ->
+  TextAtto.Parser a ->
+  String a
 attoparsedString format parser =
   String
     (Ex.FormattedString format)
@@ -473,6 +520,7 @@ attoparsedString format parser =
 
 -- * --
 
+-- | General abstraction for specification of parsers performing lookups by keys.
 data ByKey key a = ByKey
   { byKeyExpectation :: Ex.ByKey key,
     byKeyParser ::
@@ -508,6 +556,7 @@ instance Alternative (ByKey key) where
       (Ex.EitherByKey le re)
       (\a b c d -> lp a b c d <|> rp a b c d)
 
+-- | Parse a value at a key using the provided parser.
 atByKey :: key -> Value a -> ByKey key a
 atByKey key valueSpec =
   ByKey
@@ -517,12 +566,13 @@ atByKey key valueSpec =
     parser renderKey lookup _ env =
       case lookup key of
         Just val ->
-          lift $
-            first (Err.atSegment (renderKey key)) $
-              valueParser valueSpec val env
+          lift
+            $ first (Err.atSegment (renderKey key))
+            $ valueParser valueSpec val env
         Nothing ->
           throwE (pure key)
 
+-- | Parse a value at one of keys (whichever exists) using the provided parser.
 atOneOfByKey :: [key] -> Value a -> ByKey key a
 atOneOfByKey keys valueSpec =
   ByKey
@@ -532,9 +582,9 @@ atOneOfByKey keys valueSpec =
     parser renderKey _ lookup env =
       case lookup keys of
         Just (key, val) ->
-          lift $
-            first (Err.atSegment (renderKey key)) $
-              valueParser valueSpec val env
+          lift
+            $ first (Err.atSegment (renderKey key))
+            $ valueParser valueSpec val env
         Nothing ->
           throwE (fromList keys)
 
@@ -544,6 +594,7 @@ data ByOrderErr
   = NotEnoughElementsByOrderErr
       Int
 
+-- | Parser which fetches elements by the order in which it is composed.
 data ByOrder a = ByOrder
   { byOrderExpectation :: Ex.ByOrder,
     byOrderParser :: StateT (Int, [Yaml.YamlValue]) (ReaderT Yaml.AnchorMap (ExceptT ByOrderErr (Either Err.ErrAtPath))) a
@@ -564,6 +615,7 @@ instance Selective ByOrder where
       (Ex.BothByOrder le re)
       (select lp rp)
 
+-- | Parse the next value using the provided parser.
 fetchByOrder :: Value a -> ByOrder a
 fetchByOrder value =
   ByOrder

@@ -1,7 +1,11 @@
 cabal-version: 3.0
 name:          yaml-unscrambler
-version:       0.1.0.17
+version:       0.1.0.18
 synopsis:      Flexible declarative YAML parsing toolkit
+description:
+  Very flexible declarative YAML parsing toolkit with extensive error detalization capabilities and expected schema generation.
+
+category:      Parsers, Parser, YAML
 homepage:      https://github.com/nikita-volkov/yaml-unscrambler
 bug-reports:   https://github.com/nikita-volkov/yaml-unscrambler/issues
 author:        Nikita Volkov <nikita.y.volkov@mail.ru>
@@ -86,9 +90,9 @@ library
     , attoparsec-time >=1.0.1.2 && <1.1
     , base >=4.13 && <5
     , base64-bytestring >=1.2.1 && <1.3
-    , bytestring >=0.10 && <0.12
+    , bytestring >=0.10 && <0.13
     , conduit >=1.3.2 && <1.4
-    , containers >=0.6.2 && <0.7
+    , containers >=0.6.2 && <0.8
     , foldl >=1.4 && <2
     , hashable >=1.4 && <2
     , libyaml >=0.1.2 && <0.2

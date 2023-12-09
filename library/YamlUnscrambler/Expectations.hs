@@ -59,12 +59,12 @@ data String
   | -- | One of options. Suitable for enumerations.
     OneOfString
       CaseSensitive
+      -- | Options.
       [Text]
-      -- ^ Options.
   | -- | Must conform to a textually described format.
     FormattedString
+      -- | Description of the format.
       Text
-      -- ^ Description of the format.
 
 data ByKey key
   = AnyByKey
@@ -72,8 +72,8 @@ data ByKey key
   | EitherByKey (ByKey key) (ByKey key)
   | BothByKey (ByKey key) (ByKey key)
   | LookupByKey
+      -- | Keys to lookup.
       [key]
-      -- ^ Keys to lookup.
       Value
 
 data ByOrder
