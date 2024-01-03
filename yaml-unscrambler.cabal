@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name:          yaml-unscrambler
-version:       0.1.0.18
+version:       0.1.0.19
 synopsis:      Flexible declarative YAML parsing toolkit
 description:
   Very flexible declarative YAML parsing toolkit with extensive error detalization capabilities and expected schema generation.
