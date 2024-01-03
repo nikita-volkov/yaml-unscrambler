@@ -95,10 +95,14 @@ import qualified YamlUnscrambler.Util.Yaml as Yaml
 
 -- * Execution
 
+-- |
+-- Run a value parser on strict text.
 parseText :: Value a -> Text -> Either Text a
 parseText value =
   parseByteString value . Text.encodeUtf8
 
+-- |
+-- Run a value parser on strict bytestring.
 parseByteString :: Value a -> ByteString -> Either Text a
 parseByteString (Value {..}) input =
   do
