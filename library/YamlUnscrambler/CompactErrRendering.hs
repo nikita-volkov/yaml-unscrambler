@@ -5,7 +5,7 @@ where
 
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-import TextBuilderDev
+import TextBuilder
 import qualified YamlUnscrambler.Err as Err
 import qualified YamlUnscrambler.Expectations as Ex
 import YamlUnscrambler.Model
@@ -13,7 +13,7 @@ import YamlUnscrambler.Prelude hiding (intercalate)
 
 renderErrAtPath :: Err.ErrAtPath -> Text
 renderErrAtPath =
-  buildText . errAtPath
+  toText . errAtPath
 
 path :: [Text] -> TextBuilder
 path a =
