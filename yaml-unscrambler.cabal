@@ -1,28 +1,26 @@
 cabal-version: 3.0
-name:          yaml-unscrambler
-version:       0.1.0.19
-synopsis:      Flexible declarative YAML parsing toolkit
+name: yaml-unscrambler
+version: 0.1.0.19
+synopsis: Flexible declarative YAML parsing toolkit
 description:
   Very flexible declarative YAML parsing toolkit with extensive error detalization capabilities and expected schema generation.
 
-category:      Parsers, Parser, YAML
-homepage:      https://github.com/nikita-volkov/yaml-unscrambler
-bug-reports:   https://github.com/nikita-volkov/yaml-unscrambler/issues
-author:        Nikita Volkov <nikita.y.volkov@mail.ru>
-maintainer:    Nikita Volkov <nikita.y.volkov@mail.ru>
-copyright:     (c) 2020 Nikita Volkov
-license:       MIT
-license-file:  LICENSE
+category: Parsers, Parser, YAML
+homepage: https://github.com/nikita-volkov/yaml-unscrambler
+bug-reports: https://github.com/nikita-volkov/yaml-unscrambler/issues
+author: Nikita Volkov <nikita.y.volkov@mail.ru>
+maintainer: Nikita Volkov <nikita.y.volkov@mail.ru>
+copyright: (c) 2020 Nikita Volkov
+license: MIT
+license-file: LICENSE
 
 source-repository head
-  type:     git
+  type: git
   location: https://github.com/nikita-volkov/yaml-unscrambler
 
 common base
-  default-language:   Haskell2010
+  default-language: Haskell2010
   default-extensions:
-    NoImplicitPrelude
-    NoMonomorphismRestriction
     BangPatterns
     ConstraintKinds
     DataKinds
@@ -44,6 +42,8 @@ common base
     MagicHash
     MultiParamTypeClasses
     MultiWayIf
+    NoImplicitPrelude
+    NoMonomorphismRestriction
     OverloadedStrings
     ParallelListComp
     PatternGuards
@@ -62,8 +62,8 @@ common base
     ViewPatterns
 
 library
-  import:          base
-  hs-source-dirs:  library
+  import: base
+  hs-source-dirs: library
   exposed-modules:
     YamlUnscrambler
     YamlUnscrambler.Expectations
@@ -84,40 +84,40 @@ library
     YamlUnscrambler.Util.Yaml
 
   build-depends:
-    , acc >=0.2.0.1 && <0.3
-    , attoparsec >=0.14 && <0.15
-    , attoparsec-data >=1.0.5.2 && <1.1
-    , attoparsec-time >=1.0.1.2 && <1.1
-    , base >=4.13 && <5
-    , base64-bytestring >=1.2.1 && <1.3
-    , bytestring >=0.10 && <0.13
-    , conduit >=1.3.2 && <1.4
-    , containers >=0.6.2 && <0.9
-    , foldl >=1.4 && <2
-    , hashable >=1.4 && <2
-    , libyaml >=0.1.2 && <0.2
-    , mtl >=2.2 && <3
-    , scientific >=0.3.6.2 && <0.4
-    , selective >=0.7 && <0.8
-    , text >=1 && <3
-    , text-builder
-    , time >=1.9 && <2
-    , transformers >=0.5 && <0.7
-    , unordered-containers >=0.2.10 && <0.3
-    , uuid >=1.3 && <2
-    , vector >=0.12 && <0.14
-    , yaml >=0.11.5 && <0.12
+    acc >=0.2.0.1 && <0.3,
+    attoparsec >=0.14 && <0.15,
+    attoparsec-data >=1.0.5.2 && <1.1,
+    attoparsec-time >=1.0.1.2 && <1.1,
+    base >=4.13 && <5,
+    base64-bytestring >=1.2.1 && <1.3,
+    bytestring >=0.10 && <0.13,
+    conduit >=1.3.2 && <1.4,
+    containers >=0.6.2 && <0.9,
+    foldl >=1.4 && <2,
+    hashable >=1.4 && <2,
+    libyaml >=0.1.2 && <0.2,
+    mtl >=2.2 && <3,
+    scientific >=0.3.6.2 && <0.4,
+    selective >=0.7 && <0.8,
+    text >=1 && <3,
+    text-builder,
+    time >=1.9 && <2,
+    transformers >=0.5 && <0.7,
+    unordered-containers >=0.2.10 && <0.3,
+    uuid >=1.3 && <2,
+    vector >=0.12 && <0.14,
+    yaml >=0.11.5 && <0.12,
 
 test-suite test
-  import:         base
-  type:           exitcode-stdio-1.0
+  import: base
+  type: exitcode-stdio-1.0
   hs-source-dirs: test
-  main-is:        Main.hs
+  main-is: Main.hs
   build-depends:
-    , foldl >=1.4.9 && <2
-    , neat-interpolation >=0.5.1.2 && <0.6
-    , quickcheck-instances >=0.3.11 && <0.4
-    , rerebase >=1.19 && <2
-    , tasty >=0.12 && <2
-    , tasty-hunit >=0.9 && <0.11
-    , yaml-unscrambler
+    foldl >=1.4.9 && <2,
+    neat-interpolation >=0.5.1.2 && <0.6,
+    quickcheck-instances >=0.3.11 && <0.4,
+    rerebase >=1.19 && <2,
+    tasty >=0.12 && <2,
+    tasty-hunit >=0.9 && <0.11,
+    yaml-unscrambler,
